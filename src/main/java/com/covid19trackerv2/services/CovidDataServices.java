@@ -104,6 +104,10 @@ public class CovidDataServices {
 
     private long getLongValueFromRecord(String numToParse) {
         long num = 0;
+        int dotIndex = numToParse.indexOf('.');
+        if(dotIndex != -1) {
+            numToParse = numToParse.substring(0, dotIndex);
+        }
         try {
             num = Long.parseLong(numToParse);
         } catch (NumberFormatException nfe) {
