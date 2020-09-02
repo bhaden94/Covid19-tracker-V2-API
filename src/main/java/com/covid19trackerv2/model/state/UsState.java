@@ -1,5 +1,9 @@
 package com.covid19trackerv2.model.state;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document
 public class UsState {
 
     private String state;
@@ -7,8 +11,10 @@ public class UsState {
     private long deaths;
     private long recovered;
     private long active;
-    private double incident_rate;
-    private double mortality_rate;
+    @JsonProperty("incident_rate")
+    private double incidentRate;
+    @JsonProperty("mortality_rate")
+    private double mortalityRate;
 
     public String getState() {
         return state;
@@ -50,19 +56,19 @@ public class UsState {
         this.active = active;
     }
 
-    public double getIncident_rate() {
-        return incident_rate;
+    public double getIncidentRate() {
+        return incidentRate;
     }
 
-    public void setIncident_rate(double incident_rate) {
-        this.incident_rate = incident_rate;
+    public void setIncidentRate(double incidentRate) {
+        this.incidentRate = incidentRate;
     }
 
-    public double getMortality_rate() {
-        return mortality_rate;
+    public double getMortalityRate() {
+        return mortalityRate;
     }
 
-    public void setMortality_rate(double mortality_rate) {
-        this.mortality_rate = mortality_rate;
+    public void setMortalityRate(double mortalityRate) {
+        this.mortalityRate = mortalityRate;
     }
 }

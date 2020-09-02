@@ -18,7 +18,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -92,9 +91,35 @@ public class CovidDataServices {
         for(CSVRecord record : records) {
             UsState state = new UsState();
             state.setState(record.get("Province_State"));
+            state.setConfirmed(getLongValueFromRecord(record.get("Confirmed")));
+            state.setDeaths(getLongValueFromRecord(record.get("Deaths")));
+            state.setRecovered(getLongValueFromRecord(record.get("Recovered")));
+            state.setActive(getLongValueFromRecord(record.get("Active")));
+            state.setIncidentRate(getDoubleValueFromRecord(record.get("Incident_Rate")));
+            state.setMortalityRate(getDoubleValueFromRecord(record.get("Mortality_Rate")));
             states.add(state);
         }
         return states;
+    }
+
+    private long getLongValueFromRecord(String numToParse) {
+        long num = 0;
+        try {
+            num = Long.parseLong(numToParse);
+        } catch (NumberFormatException nfe) {
+            num = 0;
+        }
+        return num;
+    }
+
+    private double getDoubleValueFromRecord(String numToParse) {
+        double num = 0.0;
+        try {
+            num = Double.parseDouble(numToParse);
+        } catch (NumberFormatException nfe) {
+            num = 0.0;
+        }
+        return num;
     }
 
     private String getFormattedDate() {
