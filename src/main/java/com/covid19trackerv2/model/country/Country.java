@@ -56,19 +56,19 @@ public class Country {
         this.active = active;
     }
 
-    public double getIncident_rate() {
-        return incident_rate;
+    public double getIncidentRate() {
+        return incidentRate;
     }
 
-    public void setIncident_rate(double incident_rate) {
-        this.incident_rate = incident_rate;
+    public void setIncidentRate(double incident_rate) {
+        this.incidentRate = incident_rate;
     }
 
-    public double getMortality_rate() {
-        return mortality_rate;
+    public double getMortalityRate() {
+        return mortalityRate;
     }
 
-    public void setMortality_rate(double mortality_rate) {
-        this.mortality_rate = mortality_rate;
+    public void setMortalityRate(double mortality_rate) {
+        this.mortalityRate = mortality_rate;
     }
 }
