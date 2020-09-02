@@ -1,5 +1,9 @@
 package com.covid19trackerv2.model.country;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document
 public class Country {
 
     private String country;
@@ -7,8 +11,10 @@ public class Country {
     private long deaths;
     private long recovered;
     private long active;
-    private double incident_rate;
-    private double mortality_rate;
+    @JsonProperty("incident_rate")
+    private double incidentRate;
+    @JsonProperty("mortality_rate")
+    private double mortalityRate;
 
     public String getCountry() {
         return country;

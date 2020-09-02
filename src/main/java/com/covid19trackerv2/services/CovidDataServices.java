@@ -1,7 +1,10 @@
 package com.covid19trackerv2.services;
 
+import com.covid19trackerv2.model.country.Country;
+import com.covid19trackerv2.model.country.CountryDoc;
 import com.covid19trackerv2.model.state.StateDoc;
 import com.covid19trackerv2.model.state.UsState;
+import com.covid19trackerv2.repository.CountryRepository;
 import com.covid19trackerv2.repository.UsStateRepository;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
@@ -34,14 +37,22 @@ public class CovidDataServices {
     private final int STATE_START_MONTH = 4;
     private final int STATE_START_DAY = 12;
 
+    private final String COUNTRY_URL = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/";
+    private final int COUNTRY_START_YEAR = 2020;
+    private final int COUNTRY_START_MONTH = 1;
+    private final int COUNTRY_START_DAY = 22;
+
     @Autowired
     private UsStateRepository statesRepo;
+
+    @Autowired
+    private CountryRepository countryRepo;
 
     // scheduled to run at 0615 UTC everyday
     @Scheduled(cron = "0 15 6 * * *", zone = "UTC")
     public void fetchDailyStateStats() throws IOException, InterruptedException {
         String formattedDate = getFormattedDate();
-        Iterable<CSVRecord> records = getRecords(formattedDate);
+        Iterable<CSVRecord> records = getRecords(formattedDate, US_STATE_URL);
         List<UsState> states = createStatesList(records);
         StateDoc doc = new StateDoc();
 
@@ -61,7 +72,7 @@ public class CovidDataServices {
         for(long i=daysBetween; i>=2; i--) {
             if(this.statesRepo.findByDate(current) == null) {
                 String formattedDate = getFormattedDate(current);
-                Iterable<CSVRecord> records = getRecords(formattedDate);
+                Iterable<CSVRecord> records = getRecords(formattedDate, US_STATE_URL);
                 List<UsState> states = createStatesList(records);
                 StateDoc doc = new StateDoc();
                 doc.setDate(current);
@@ -72,10 +83,31 @@ public class CovidDataServices {
         }
     }
 
-    private Iterable<CSVRecord> getRecords(String formattedDate) throws IOException, InterruptedException {
+    @PostConstruct
+    public void populateDBWithCountryData() throws IOException, InterruptedException {
+        LocalDate startDate = LocalDate.of(COUNTRY_START_YEAR, COUNTRY_START_MONTH, COUNTRY_START_DAY);
+        LocalDate today = LocalDate.now(ZoneId.of("UTC"));
+
+        long daysBetween = DAYS.between(startDate, today);
+        LocalDate current = startDate;
+        for(long i=daysBetween; i>=2; i--) {
+            if(this.countryRepo.findByDate(current) == null) {
+                String formattedDate = getFormattedDate(current);
+                Iterable<CSVRecord> records = getRecords(formattedDate, COUNTRY_URL);
+                List<Country> countries = createCountryList(records);
+                CountryDoc doc = new CountryDoc();
+                doc.setDate(current);
+                doc.setCountries(countries);
+                this.countryRepo.save(doc);
+                current = current.plusDays(1);
+            }
+        }
+    }
+
+    private Iterable<CSVRecord> getRecords(String formattedDate, String url) throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest req = HttpRequest.newBuilder()
-                .uri(URI.create(US_STATE_URL + formattedDate + ".csv"))
+                .uri(URI.create(url + formattedDate + ".csv"))
                 .build();
 
         HttpResponse<String> res = client.send(req, HttpResponse.BodyHandlers.ofString());
@@ -100,6 +132,20 @@ public class CovidDataServices {
             states.add(state);
         }
         return states;
+    }
+
+    private List<Country> createCountryList(Iterable<CSVRecord> records) {
+        List<Country> countries = new ArrayList<>();
+        for(CSVRecord record : records) {
+            Country country = new Country();
+            if(record.get("Country/Region") != null) {
+                country.setCountry(record.get("Country/Region"));
+            } else {
+                country.setCountry(record.get("Country_Region"));
+            }
+            countries.add(country);
+        }
+        return countries;
     }
 
     private long getLongValueFromRecord(String numToParse) {
