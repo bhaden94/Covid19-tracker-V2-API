@@ -23,8 +23,7 @@ import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
@@ -135,17 +134,53 @@ public class CovidDataServices {
     }
 
     private List<Country> createCountryList(Iterable<CSVRecord> records) {
-        List<Country> countries = new ArrayList<>();
+        Map<String, Country> countries = new HashMap<>();
         for(CSVRecord record : records) {
             Country country = new Country();
-            if(record.get("Country/Region") != null) {
+            if(record.isMapped("Country/Region")) {
                 country.setCountry(record.get("Country/Region"));
             } else {
                 country.setCountry(record.get("Country_Region"));
             }
-            countries.add(country);
+            // values that are in all records
+            country.setConfirmed(getLongValueFromRecord(record.get("Confirmed")));
+            country.setDeaths(getLongValueFromRecord(record.get("Deaths")));
+            country.setRecovered(getLongValueFromRecord(record.get("Recovered")));
+
+            // values that are not in all records
+            if(record.isMapped("Active")) {
+                country.setActive(getLongValueFromRecord(record.get("Active")));
+            } else {
+                country.setActive(0L);
+            }
+            if(record.isMapped("Incidence_Rate")) {
+                country.setIncidentRate(getDoubleValueFromRecord(record.get("Incidence_Rate")));
+            } else {
+                country.setIncidentRate(0.0);
+            }
+            if(record.isMapped("Case-Fatality_Ratio")) {
+                country.setMortalityRate(getDoubleValueFromRecord(record.get("Case-Fatality_Ratio")));
+            } else {
+                country.setMortalityRate(0.0);
+            }
+
+            // if our country is already there then add the values up
+            if(countries.containsKey(country.getCountry())) {
+                Country existing = countries.get(country.getCountry());
+                existing.setConfirmed(existing.getConfirmed() + country.getConfirmed());
+                existing.setDeaths(existing.getDeaths() + country.getDeaths());
+                existing.setRecovered(existing.getRecovered() + country.getRecovered());
+                existing.setActive(existing.getActive() + country.getActive());
+                // TODO figure out how to properly calculate incident rate and mortality rate with multiple entries
+                existing.setIncidentRate(existing.getIncidentRate() + country.getIncidentRate());
+                existing.setMortalityRate(existing.getMortalityRate() + country.getMortalityRate());
+                countries.put(country.getCountry(), existing);
+            } else {
+                countries.put(country.getCountry(), country);
+            }
         }
-        return countries;
+        // return the values in the Map as an ArrayList
+        return new ArrayList<>(countries.values());
     }
 
     private long getLongValueFromRecord(String numToParse) {
@@ -156,9 +191,7 @@ public class CovidDataServices {
         }
         try {
             num = Long.parseLong(numToParse);
-        } catch (NumberFormatException nfe) {
-            num = 0;
-        }
+        } catch (NumberFormatException ignored) {}
         return num;
     }
 
@@ -166,9 +199,7 @@ public class CovidDataServices {
         double num = 0.0;
         try {
             num = Double.parseDouble(numToParse);
-        } catch (NumberFormatException nfe) {
-            num = 0.0;
-        }
+        } catch (NumberFormatException ignored) {}
         return num;
     }
 
