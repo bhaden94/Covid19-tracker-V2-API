@@ -171,9 +171,8 @@ public class CovidDataServices {
                 existing.setDeaths(existing.getDeaths() + country.getDeaths());
                 existing.setRecovered(existing.getRecovered() + country.getRecovered());
                 existing.setActive(existing.getActive() + country.getActive());
-                // TODO figure out how to properly calculate incident rate with multiple entries
-                existing.setIncidentRate(existing.getIncidentRate() + country.getIncidentRate());
-                existing.setMortalityRate((double) existing.getDeaths() * 100 / (double) existing.getConfirmed());
+                existing.setIncidentRate(country.getIncidentRate());
+                existing.setMortalityRate(country.getMortalityRate());
                 countries.put(country.getCountry(), existing);
             } else {
                 countries.put(country.getCountry(), country);
