@@ -66,7 +66,7 @@ public class CovidDataServices {
     // link talks about it in last paragraph
 
     // this will populate the data in the database by going through all the files
-    @PostConstruct
+    // @PostConstruct
     @Async
     public void populateDbWithStateData() throws IOException, InterruptedException {
         System.out.println("Start state DB population");
@@ -90,7 +90,7 @@ public class CovidDataServices {
         System.out.println("exit state DB population");
     }
 
-    @PostConstruct
+    // @PostConstruct
     @Async
     public void populateDBWithCountryData() throws IOException, InterruptedException {
         System.out.println("Start country DB population");
