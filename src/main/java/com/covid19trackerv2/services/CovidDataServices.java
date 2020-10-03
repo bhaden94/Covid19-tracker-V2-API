@@ -9,6 +9,7 @@ import com.covid19trackerv2.repository.UsStateRepository;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -60,9 +61,15 @@ public class CovidDataServices {
         this.statesRepo.save(doc);
     }
 
+    // TODO: https://docs.spring.io/spring-framework/docs/3.0.x/reference/scheduling.html#scheduling-annotation-support-async
+    // getting async functionality to work with post construct
+    // link talks about it in last paragraph
+
     // this will populate the data in the database by going through all the files
     @PostConstruct
+    @Async
     public void populateDbWithStateData() throws IOException, InterruptedException {
+        System.out.println("Start state DB population");
         LocalDate startDate = LocalDate.of(STATE_START_YEAR, STATE_START_MONTH, STATE_START_DAY);
         LocalDate today = LocalDate.now(ZoneId.of("UTC"));
 
@@ -80,10 +87,13 @@ public class CovidDataServices {
                 current = current.plusDays(1);
             }
         }
+        System.out.println("exit state DB population");
     }
 
     @PostConstruct
+    @Async
     public void populateDBWithCountryData() throws IOException, InterruptedException {
+        System.out.println("Start country DB population");
         LocalDate startDate = LocalDate.of(COUNTRY_START_YEAR, COUNTRY_START_MONTH, COUNTRY_START_DAY);
         LocalDate today = LocalDate.now(ZoneId.of("UTC"));
 
@@ -101,6 +111,7 @@ public class CovidDataServices {
                 current = current.plusDays(1);
             }
         }
+        System.out.println("exit country DB population");
     }
 
     private Iterable<CSVRecord> getRecords(String formattedDate, String url) throws IOException, InterruptedException {

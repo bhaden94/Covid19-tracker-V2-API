@@ -1,17 +1,29 @@
 package com.covid19trackerv2;
 
-import ch.qos.logback.core.spi.LifeCycle;
-import com.covid19trackerv2.repository.UsStateRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+
+import java.util.concurrent.Executor;
 
 @SpringBootApplication
+@EnableAsync
 public class Covid19Trackerv2Application {
 
 	public static void main(String[] args) {
 		SpringApplication.run(Covid19Trackerv2Application.class, args);
 	}
 
+	@Bean
+	public Executor taskExecutor() {
+		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+		executor.setCorePoolSize(2);
+		executor.setMaxPoolSize(2);
+		executor.setQueueCapacity(500);
+		executor.setThreadNamePrefix("GithubLookup-");
+		executor.initialize();
+		return executor;
+	}
 }
