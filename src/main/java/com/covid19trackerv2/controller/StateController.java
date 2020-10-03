@@ -61,9 +61,15 @@ public class StateController {
 
 
     @DeleteMapping("delete_states")
-    public void deleteAllStates(@RequestBody Map<String, String> password) {
+    public ResponseEntity<String> deleteAllStates(@RequestBody(required = false) Map<String, String> password) {
+        if(password == null || !password.containsKey("password")) {
+            return ResponseEntity.badRequest().body("Password required for delete route");
+        }
         if(password.get("password").equals(environment.getProperty("DB_PASSWORD"))) {
             this.statesRepo.deleteAll();
+            return ResponseEntity.ok().body("States DB cleared");
+        } else {
+            return ResponseEntity.badRequest().body("Invalid password given for delete route");
         }
     }
 }

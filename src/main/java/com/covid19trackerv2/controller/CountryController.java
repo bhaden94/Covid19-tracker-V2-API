@@ -61,9 +61,15 @@ public class CountryController {
 
 
     @DeleteMapping("delete_countries")
-    public void deleteAllCountries(@RequestBody Map<String, String> password) {
+    public ResponseEntity<String> deleteAllCountries(@RequestBody(required = false) Map<String, String> password) {
+        if(password == null || !password.containsKey("password")) {
+            return ResponseEntity.badRequest().body("Password required for delete route");
+        }
         if(password.get("password").equals(environment.getProperty("DB_PASSWORD"))) {
             this.countryRepo.deleteAll();
+            return ResponseEntity.ok().body("Countries DB cleared");
+        } else {
+            return ResponseEntity.badRequest().body("Invalid password given for delete route");
         }
     }
 }
