@@ -3,6 +3,8 @@ package com.covid19trackerv2.controller;
 import com.covid19trackerv2.model.state.StateDoc;
 import com.covid19trackerv2.repository.UsStateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
@@ -10,12 +12,16 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
 @CrossOrigin
 @RequestMapping("/api/state")
 public class StateController {
+
+    @Autowired
+    Environment environment;
 
     @Autowired
     private UsStateRepository statesRepo;
@@ -55,7 +61,9 @@ public class StateController {
 
 
     @DeleteMapping("delete_states")
-    public void deleteAllStates() {
-        this.statesRepo.deleteAll();
+    public void deleteAllStates(@RequestBody Map<String, String> password) {
+        if(password.get("password").equals(environment.getProperty("DB_PASSWORD"))) {
+            this.statesRepo.deleteAll();
+        }
     }
 }

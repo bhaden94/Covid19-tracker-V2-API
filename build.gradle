@@ -10,12 +10,17 @@ sourceCompatibility = '11'
 
 repositories {
 	mavenCentral()
+	maven {
+		url 'https://dl.bintray.com/paulschwarz/maven'
+	}
+
 }
 
 dependencies {
 	compile 'org.apache.commons:commons-csv:1.8'
 	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'me.paulschwarz:spring-dotenv:2.0.0'
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 	}
