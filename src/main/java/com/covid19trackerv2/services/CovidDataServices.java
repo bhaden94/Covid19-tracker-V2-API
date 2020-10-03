@@ -67,7 +67,6 @@ public class CovidDataServices {
 
     // this will populate the data in the database by going through all the files
     // @PostConstruct
-    @Async
     public void populateDbWithStateData() throws IOException, InterruptedException {
         System.out.println("Start state DB population");
         LocalDate startDate = LocalDate.of(STATE_START_YEAR, STATE_START_MONTH, STATE_START_DAY);
@@ -91,7 +90,6 @@ public class CovidDataServices {
     }
 
     // @PostConstruct
-    @Async
     public void populateDBWithCountryData() throws IOException, InterruptedException {
         System.out.println("Start country DB population");
         LocalDate startDate = LocalDate.of(COUNTRY_START_YEAR, COUNTRY_START_MONTH, COUNTRY_START_DAY);
