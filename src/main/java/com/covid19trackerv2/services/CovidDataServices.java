@@ -69,7 +69,7 @@ public class CovidDataServices {
         long daysBetween = DAYS.between(startDate, today);
         LocalDate current = startDate;
         for(long i=daysBetween; i>=2; i--) {
-            if(this.statesRepo.findByDate(current) == null) {
+            if(this.statesRepo.findByDate(current).isEmpty()) {
                 String formattedDate = getFormattedDate(current);
                 Iterable<CSVRecord> records = getRecords(formattedDate, US_STATE_URL);
                 List<UsState> states = createStatesList(records);
@@ -90,7 +90,7 @@ public class CovidDataServices {
         long daysBetween = DAYS.between(startDate, today);
         LocalDate current = startDate;
         for(long i=daysBetween; i>=2; i--) {
-            if(this.countryRepo.findByDate(current) == null) {
+            if(this.countryRepo.findByDate(current).isEmpty()) {
                 String formattedDate = getFormattedDate(current);
                 Iterable<CSVRecord> records = getRecords(formattedDate, COUNTRY_URL);
                 List<Country> countries = createCountryList(records);
