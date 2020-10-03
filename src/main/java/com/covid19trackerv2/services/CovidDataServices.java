@@ -132,7 +132,7 @@ public class CovidDataServices {
         List<UsState> states = new ArrayList<>();
         for(CSVRecord record : records) {
             UsState state = new UsState();
-            state.setState(record.get("Province_State"));
+            state.setState(record.get("Province_State").toLowerCase());
             state.setConfirmed(getLongValueFromRecord(record.get("Confirmed")));
             state.setDeaths(getLongValueFromRecord(record.get("Deaths")));
             state.setRecovered(getLongValueFromRecord(record.get("Recovered")));
@@ -149,9 +149,9 @@ public class CovidDataServices {
         for(CSVRecord record : records) {
             Country country = new Country();
             if(record.isMapped("Country/Region")) {
-                country.setCountry(record.get("Country/Region"));
+                country.setCountry(record.get("Country/Region").toLowerCase());
             } else {
-                country.setCountry(record.get("Country_Region"));
+                country.setCountry(record.get("Country_Region").toLowerCase());
             }
             // values that are in all records
             country.setConfirmed(getLongValueFromRecord(record.get("Confirmed")));

@@ -1,5 +1,6 @@
 package com.covid19trackerv2.controller;
 
+import com.covid19trackerv2.model.country.Country;
 import com.covid19trackerv2.model.country.CountryDoc;
 import com.covid19trackerv2.model.state.StateDoc;
 import com.covid19trackerv2.repository.CountryRepository;
@@ -14,6 +15,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin
@@ -56,6 +58,18 @@ public class CountryController {
         return state.<ResponseEntity<Object>>map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.badRequest()
                         .body("Country document not found with date " + date.toString()));
+    }
+
+    @GetMapping("")
+    public ResponseEntity<List<CountryDoc>> getCountryByName(@RequestParam String name) {
+        List<CountryDoc> listWithCountryName = this.countryRepo.findByCountriesCountry(name.toLowerCase());
+        for (CountryDoc countryDoc : listWithCountryName) {
+            countryDoc.setCountries(
+                            countryDoc.getCountries().stream().filter(
+                                    country -> country.getCountry().equalsIgnoreCase(name))
+                                    .collect(Collectors.toList()));
+        }
+        return ResponseEntity.ok().body(listWithCountryName);
     }
 
 

@@ -3,7 +3,6 @@ package com.covid19trackerv2.controller;
 import com.covid19trackerv2.model.state.StateDoc;
 import com.covid19trackerv2.repository.UsStateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,6 +13,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin
@@ -56,6 +56,18 @@ public class StateController {
         return state.<ResponseEntity<Object>>map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.badRequest()
                         .body("State document not found with date " + date.toString()));
+    }
+
+    @GetMapping("")
+    public ResponseEntity<List<StateDoc>> getCountryByName(@RequestParam String name) {
+        List<StateDoc> listWithStateName = this.statesRepo.findByStatesState(name.toLowerCase());
+        for (StateDoc stateDoc : listWithStateName) {
+            stateDoc.setStates(
+                    stateDoc.getStates().stream().filter(
+                            country -> country.getState().equalsIgnoreCase(name))
+                            .collect(Collectors.toList()));
+        }
+        return ResponseEntity.ok().body(listWithStateName);
     }
 
 
