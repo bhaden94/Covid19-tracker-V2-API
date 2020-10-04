@@ -61,6 +61,8 @@ public class CovidDataServices {
         this.statesRepo.save(doc);
     }
 
+    //TODO: fetchDailyCountryStats method
+
     // this method will be loaded concurrently in a thread at startup from AsyncDBLoad class
     public void populateDbWithStateData() throws IOException, InterruptedException {
         System.out.println("Start state DB population");
