@@ -65,21 +65,20 @@ public class CountryController {
         List<CountryDoc> listWithCountryName = this.countryRepo.findByCountriesCountry(name.toLowerCase());
         for (CountryDoc countryDoc : listWithCountryName) {
             countryDoc.setCountries(
-                            countryDoc.getCountries().stream().filter(
-                                    country -> country.getCountry().equalsIgnoreCase(name))
-                                    .collect(Collectors.toList()));
+                    countryDoc.getCountries().stream().filter(
+                            country -> country.getCountry().equalsIgnoreCase(name))
+                            .collect(Collectors.toList()));
         }
         return ResponseEntity.ok().body(listWithCountryName);
     }
 
 
-
     @DeleteMapping("delete_countries")
     public ResponseEntity<String> deleteAllCountries(@RequestBody(required = false) Map<String, String> password) {
-        if(password == null || !password.containsKey("password")) {
+        if (password == null || !password.containsKey("password")) {
             return ResponseEntity.badRequest().body("Password required for delete route");
         }
-        if(password.get("password").equals(environment.getProperty("DB_PASSWORD"))) {
+        if (password.get("password").equals(environment.getProperty("DB_PASSWORD"))) {
             this.countryRepo.deleteAll();
             return ResponseEntity.ok().body("Countries DB cleared");
         } else {

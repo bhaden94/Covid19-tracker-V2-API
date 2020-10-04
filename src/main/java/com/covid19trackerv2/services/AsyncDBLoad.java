@@ -10,42 +10,32 @@ public class AsyncDBLoad extends Thread {
 
     final CovidDataServices service;
 
-    Thread.UncaughtExceptionHandler exceptionHandler = new Thread.UncaughtExceptionHandler() {
-        @Override
-        public void uncaughtException(Thread th, Throwable ex) {
-            System.out.println("Uncaught exception: " + ex.getMessage()
+    Thread.UncaughtExceptionHandler exceptionHandler =
+            (th, ex) -> System.out.println("Uncaught exception: " + ex.getMessage()
                     + "\nIn Thread: " + th.getName());
-        }
-    };
 
     public AsyncDBLoad(CovidDataServices service) {
         this.service = service;
     }
 
     @PostConstruct
-    public void initializeAsyncDB() throws IOException, InterruptedException {
+    public void initializeAsyncDB() {
         // Thread to populate state DB
-        Thread stateThread = new Thread() {
-            @Override
-            public void run() {
-                try {
-                    service.populateDbWithStateData();
-                } catch (InterruptedException | IOException e) {
-                    System.out.println("State thread error");
-                }
+        Thread stateThread = new Thread(() -> {
+            try {
+                service.populateDbWithStateData();
+            } catch (InterruptedException | IOException e) {
+                System.out.println("State thread error");
             }
-        };
+        });
         // Thread to populate country DB
-        Thread countryThread = new Thread() {
-            @Override
-            public void run() {
-                try {
-                    service.populateDBWithCountryData();
-                } catch (InterruptedException | IOException e) {
-                    System.out.println("Country thread error");
-                }
+        Thread countryThread = new Thread(() -> {
+            try {
+                service.populateDBWithCountryData();
+            } catch (InterruptedException | IOException e) {
+                System.out.println("Country thread error");
             }
-        };
+        });
 
         // set error handlers
         stateThread.setUncaughtExceptionHandler(exceptionHandler);

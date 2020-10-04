@@ -61,12 +61,7 @@ public class CovidDataServices {
         this.statesRepo.save(doc);
     }
 
-    // TODO: https://docs.spring.io/spring-framework/docs/3.0.x/reference/scheduling.html#scheduling-annotation-support-async
-    // getting async functionality to work with post construct
-    // link talks about it in last paragraph
-
-    // this will populate the data in the database by going through all the files
-    // @PostConstruct
+    // this method will be loaded concurrently in a thread at startup from AsyncDBLoad class
     public void populateDbWithStateData() throws IOException, InterruptedException {
         System.out.println("Start state DB population");
         LocalDate startDate = LocalDate.of(STATE_START_YEAR, STATE_START_MONTH, STATE_START_DAY);
@@ -74,8 +69,8 @@ public class CovidDataServices {
 
         long daysBetween = DAYS.between(startDate, today);
         LocalDate current = startDate;
-        for(long i=daysBetween; i>=2; i--) {
-            if(this.statesRepo.findByDate(current).isEmpty()) {
+        for (long i = daysBetween; i >= 2; i--) {
+            if (this.statesRepo.findByDate(current).isEmpty()) {
                 String formattedDate = getFormattedDate(current);
                 Iterable<CSVRecord> records = getRecords(formattedDate, US_STATE_URL);
                 List<UsState> states = createStatesList(records);
@@ -89,7 +84,7 @@ public class CovidDataServices {
         System.out.println("exit state DB population");
     }
 
-    // @PostConstruct
+    // this method will be loaded concurrently in a thread at startup from AsyncDBLoad class
     public void populateDBWithCountryData() throws IOException, InterruptedException {
         System.out.println("Start country DB population");
         LocalDate startDate = LocalDate.of(COUNTRY_START_YEAR, COUNTRY_START_MONTH, COUNTRY_START_DAY);
@@ -97,8 +92,8 @@ public class CovidDataServices {
 
         long daysBetween = DAYS.between(startDate, today);
         LocalDate current = startDate;
-        for(long i=daysBetween; i>=2; i--) {
-            if(this.countryRepo.findByDate(current).isEmpty()) {
+        for (long i = daysBetween; i >= 2; i--) {
+            if (this.countryRepo.findByDate(current).isEmpty()) {
                 String formattedDate = getFormattedDate(current);
                 Iterable<CSVRecord> records = getRecords(formattedDate, COUNTRY_URL);
                 List<Country> countries = createCountryList(records);
@@ -128,7 +123,7 @@ public class CovidDataServices {
 
     private List<UsState> createStatesList(Iterable<CSVRecord> records) {
         List<UsState> states = new ArrayList<>();
-        for(CSVRecord record : records) {
+        for (CSVRecord record : records) {
             UsState state = new UsState();
             state.setState(record.get("Province_State").toLowerCase());
             state.setConfirmed(getLongValueFromRecord(record.get("Confirmed")));
@@ -144,9 +139,9 @@ public class CovidDataServices {
 
     private List<Country> createCountryList(Iterable<CSVRecord> records) {
         Map<String, Country> countries = new HashMap<>();
-        for(CSVRecord record : records) {
+        for (CSVRecord record : records) {
             Country country = new Country();
-            if(record.isMapped("Country/Region")) {
+            if (record.isMapped("Country/Region")) {
                 country.setCountry(record.get("Country/Region").toLowerCase());
             } else {
                 country.setCountry(record.get("Country_Region").toLowerCase());
@@ -157,24 +152,24 @@ public class CovidDataServices {
             country.setRecovered(getLongValueFromRecord(record.get("Recovered")));
 
             // values that are not in all records
-            if(record.isMapped("Active")) {
+            if (record.isMapped("Active")) {
                 country.setActive(getLongValueFromRecord(record.get("Active")));
             } else {
                 country.setActive(0L);
             }
-            if(record.isMapped("Incidence_Rate")) {
+            if (record.isMapped("Incidence_Rate")) {
                 country.setIncidentRate(getDoubleValueFromRecord(record.get("Incidence_Rate")));
             } else {
                 country.setIncidentRate(0.0);
             }
-            if(record.isMapped("Case-Fatality_Ratio")) {
+            if (record.isMapped("Case-Fatality_Ratio")) {
                 country.setMortalityRate(getDoubleValueFromRecord(record.get("Case-Fatality_Ratio")));
             } else {
                 country.setMortalityRate(0.0);
             }
 
             // if our country is already there then add the values up
-            if(countries.containsKey(country.getCountry())) {
+            if (countries.containsKey(country.getCountry())) {
                 Country existing = countries.get(country.getCountry());
                 existing.setConfirmed(existing.getConfirmed() + country.getConfirmed());
                 existing.setDeaths(existing.getDeaths() + country.getDeaths());
@@ -194,12 +189,13 @@ public class CovidDataServices {
     private long getLongValueFromRecord(String numToParse) {
         long num = 0;
         int dotIndex = numToParse.indexOf('.');
-        if(dotIndex != -1) {
+        if (dotIndex != -1) {
             numToParse = numToParse.substring(0, dotIndex);
         }
         try {
             num = Long.parseLong(numToParse);
-        } catch (NumberFormatException ignored) {}
+        } catch (NumberFormatException ignored) {
+        }
         return num;
     }
 
@@ -207,7 +203,8 @@ public class CovidDataServices {
         double num = 0.0;
         try {
             num = Double.parseDouble(numToParse);
-        } catch (NumberFormatException ignored) {}
+        } catch (NumberFormatException ignored) {
+        }
         return num;
     }
 
