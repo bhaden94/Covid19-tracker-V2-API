@@ -1,8 +1,11 @@
 package com.covid19trackerv2.model.country;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.time.LocalDate;
 import java.util.List;
 
+@Document(collection = "country_collection")
 public class CountryDoc {
 
     private String id;

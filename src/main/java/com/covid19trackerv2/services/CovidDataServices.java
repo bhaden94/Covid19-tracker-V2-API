@@ -45,26 +45,40 @@ public class CovidDataServices {
 
     // run at 0615 UTC everyday in AsyncDBLoad class
     public void fetchDailyStateStats() throws IOException, InterruptedException {
-        String formattedDate = getFormattedDate();
-        Iterable<CSVRecord> records = getRecords(formattedDate, US_STATE_URL);
-        List<UsState> states = createStatesList(records);
-        StateDoc doc = new StateDoc();
+        // data lags behind one day so we minus by one day
+        LocalDate date = LocalDate.now(ZoneId.of("UTC")).minusDays(1);
 
-        doc.setDate(LocalDate.now(ZoneId.of("UTC")));
-        doc.setStates(states);
-        this.statesRepo.save(doc);
+        System.out.println("Start daily state stats fetch");
+        if(this.statesRepo.findByDate(date).isEmpty()) {
+            String formattedDate = getFormattedDate();
+            Iterable<CSVRecord> records = getRecords(formattedDate, US_STATE_URL);
+            List<UsState> states = createStatesList(records);
+            StateDoc doc = new StateDoc();
+            doc.setDate(date);
+            doc.setStates(states);
+            System.out.println("Saving to state DB");
+            this.statesRepo.save(doc);
+        }
+        System.out.println("End daily state stats fetch");
     }
 
     // run at 0615 UTC everyday in AsyncDBLoad class
     public void fetchDailyCountryStats() throws IOException, InterruptedException {
-        String formattedDate = getFormattedDate();
-        Iterable<CSVRecord> records = getRecords(formattedDate, COUNTRY_URL);
-        List<Country> countries = createCountryList(records);
-        CountryDoc doc = new CountryDoc();
+        // data lags behind one day so we minus by one day
+        LocalDate date = LocalDate.now(ZoneId.of("UTC")).minusDays(1);
 
-        doc.setDate(LocalDate.now(ZoneId.of("UTC")));
-        doc.setCountries(countries);
-        this.countryRepo.save(doc);
+        System.out.println("Start daily country stats fetch");
+        if(this.countryRepo.findByDate(date).isEmpty()) {
+            String formattedDate = getFormattedDate();
+            Iterable<CSVRecord> records = getRecords(formattedDate, COUNTRY_URL);
+            List<Country> countries = createCountryList(records);
+            CountryDoc doc = new CountryDoc();
+            doc.setDate(date);
+            doc.setCountries(countries);
+            System.out.println("Saving to country DB");
+            this.countryRepo.save(doc);
+        }
+        System.out.println("End daily country stats fetch");
     }
 
     // this method will be loaded concurrently in a thread at startup from AsyncDBLoad class
@@ -218,7 +232,8 @@ public class CovidDataServices {
     }
 
     private String getFormattedDate() {
-        LocalDate date = LocalDate.now(ZoneId.of("UTC"));
+        // data lags behind one day so we minus by one day
+        LocalDate date = LocalDate.now(ZoneId.of("UTC")).minusDays(1);
         return date.format(DateTimeFormatter.ofPattern("MM-dd-yyyy"));
     }
 
