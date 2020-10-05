@@ -29,7 +29,6 @@ import java.util.*;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 @Service
-@EnableScheduling
 public class CovidDataServices {
 
     private final String US_STATE_URL = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports_us/";
@@ -48,8 +47,7 @@ public class CovidDataServices {
     @Autowired
     private CountryRepository countryRepo;
 
-    // scheduled to run at 0615 UTC everyday
-    @Scheduled(cron = "0 15 6 * * *", zone = "UTC")
+    // run at 0615 UTC everyday in AsyncDBLoad class
     public void fetchDailyStateStats() throws IOException, InterruptedException {
         String formattedDate = getFormattedDate();
         Iterable<CSVRecord> records = getRecords(formattedDate, US_STATE_URL);
@@ -61,7 +59,17 @@ public class CovidDataServices {
         this.statesRepo.save(doc);
     }
 
-    //TODO: fetchDailyCountryStats method
+    // run at 0615 UTC everyday in AsyncDBLoad class
+    public void fetchDailyCountryStats() throws IOException, InterruptedException {
+        String formattedDate = getFormattedDate();
+        Iterable<CSVRecord> records = getRecords(formattedDate, COUNTRY_URL);
+        List<Country> countries = createCountryList(records);
+        CountryDoc doc = new CountryDoc();
+
+        doc.setDate(LocalDate.now(ZoneId.of("UTC")));
+        doc.setCountries(countries);
+        this.countryRepo.save(doc);
+    }
 
     // this method will be loaded concurrently in a thread at startup from AsyncDBLoad class
     public void populateDbWithStateData() throws IOException, InterruptedException {
@@ -108,6 +116,8 @@ public class CovidDataServices {
         }
         System.out.println("exit country DB population");
     }
+
+    /* ---- Helper methods ---- */
 
     private Iterable<CSVRecord> getRecords(String formattedDate, String url) throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
@@ -177,6 +187,7 @@ public class CovidDataServices {
                 existing.setDeaths(existing.getDeaths() + country.getDeaths());
                 existing.setRecovered(existing.getRecovered() + country.getRecovered());
                 existing.setActive(existing.getActive() + country.getActive());
+                // carry over the incident rate and mortality rate as it is calculated already
                 existing.setIncidentRate(country.getIncidentRate());
                 existing.setMortalityRate(country.getMortalityRate());
                 countries.put(country.getCountry(), existing);
