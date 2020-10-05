@@ -21,7 +21,7 @@ public class AsyncDBLoad extends Thread {
 
     // scheduled to run at 0615 UTC everyday
     @Scheduled(cron = "0 15 6 * * *", zone = "UTC")
-    // @Scheduled(cron = "0 */1 * * * *", zone = "UTC")
+    // @Scheduled(cron = "0 */2 * * * *", zone = "UTC") // run every 2 minutes
     public void fetchDailyStats() {
         Thread stateThread = new Thread(() -> {
             try {
