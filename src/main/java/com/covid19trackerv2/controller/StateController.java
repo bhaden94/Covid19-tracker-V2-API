@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class StateController {
 
     @Autowired
-    Environment environment;
+    private Environment environment;
 
     @Autowired
     private UsStateRepository statesRepo;
@@ -83,4 +83,5 @@ public class StateController {
             return ResponseEntity.badRequest().body("Invalid password given for delete route");
         }
     }
+
 }

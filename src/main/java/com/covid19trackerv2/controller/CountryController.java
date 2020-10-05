@@ -1,8 +1,6 @@
 package com.covid19trackerv2.controller;
 
-import com.covid19trackerv2.model.country.Country;
 import com.covid19trackerv2.model.country.CountryDoc;
-import com.covid19trackerv2.model.state.StateDoc;
 import com.covid19trackerv2.repository.CountryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -23,7 +21,7 @@ import java.util.stream.Collectors;
 public class CountryController {
 
     @Autowired
-    Environment environment;
+    private Environment environment;
 
     @Autowired
     private CountryRepository countryRepo;
@@ -85,4 +83,5 @@ public class CountryController {
             return ResponseEntity.badRequest().body("Invalid password given for delete route");
         }
     }
+
 }

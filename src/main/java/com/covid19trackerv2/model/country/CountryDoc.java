@@ -1,7 +1,6 @@
 package com.covid19trackerv2.model.country;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 public class CountryDoc {
