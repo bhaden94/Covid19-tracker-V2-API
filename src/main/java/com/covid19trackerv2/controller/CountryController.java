@@ -76,7 +76,7 @@ public class CountryController {
         if (password == null || !password.containsKey("password")) {
             return ResponseEntity.badRequest().body("Password required for delete route");
         }
-        if (password.get("password").equals(environment.getProperty("DB_PASSWORD"))) {
+        if (password.get("password").equals(environment.getProperty("delete.route.password"))) {
             this.countryRepo.deleteAll();
             return ResponseEntity.ok().body("Countries DB cleared");
         } else {

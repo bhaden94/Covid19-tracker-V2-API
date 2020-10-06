@@ -76,7 +76,7 @@ public class StateController {
         if (password == null || !password.containsKey("password")) {
             return ResponseEntity.badRequest().body("Password required for delete route");
         }
-        if (password.get("password").equals(environment.getProperty("DB_PASSWORD"))) {
+        if (password.get("password").equals(environment.getProperty("delete.route.password"))) {
             this.statesRepo.deleteAll();
             return ResponseEntity.ok().body("States DB cleared");
         } else {
