@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,7 +35,7 @@ public class CountryController {
     @GetMapping("/paged")
     public ResponseEntity<Page<CountryDoc>> getCountriesPageable(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size) {
+            @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok().body(this.countryRepo.findAll(PageRequest.of(page, size)));
     }
 
@@ -42,19 +43,19 @@ public class CountryController {
     public ResponseEntity<Object> getCountryById(@PathVariable String id) {
         Optional<CountryDoc> country = this.countryRepo.findById(id);
         return country.<ResponseEntity<Object>>map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.badRequest().body("Country document not found with id " + id));
+                .orElseGet(() -> ResponseEntity.ok()
+                        .body("Country document not found with id " + id));
     }
 
     @GetMapping("/date")
     public ResponseEntity<Object> getStateByDate(
             @RequestParam int year,
             @RequestParam int month,
-            @RequestParam int day
-    ) {
+            @RequestParam int day) {
         LocalDate date = LocalDate.of(year, month, day);
         Optional<CountryDoc> state = this.countryRepo.findByDate(date);
         return state.<ResponseEntity<Object>>map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.badRequest()
+                .orElseGet(() -> ResponseEntity.ok()
                         .body("Country document not found with date " + date.toString()));
     }
 
@@ -74,13 +75,13 @@ public class CountryController {
     @DeleteMapping("delete_countries")
     public ResponseEntity<String> deleteAllCountries(@RequestBody(required = false) Map<String, String> password) {
         if (password == null || !password.containsKey("password")) {
-            return ResponseEntity.badRequest().body("Password required for delete route");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Password required for delete route");
         }
         if (password.get("password").equals(environment.getProperty("delete.route.password"))) {
             this.countryRepo.deleteAll();
             return ResponseEntity.ok().body("Countries DB cleared");
         } else {
-            return ResponseEntity.badRequest().body("Invalid password given for delete route");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password given for delete route");
         }
     }
 
