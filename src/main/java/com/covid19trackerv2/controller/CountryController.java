@@ -71,6 +71,8 @@ public class CountryController {
         return ResponseEntity.ok().body(listWithCountryName);
     }
 
+    // TODO: add route to get total confirmed, deaths, recovered, active & average mortality and incident rate
+
 
     @DeleteMapping("delete_countries")
     public ResponseEntity<String> deleteAllCountries(@RequestBody(required = false) Map<String, String> password) {

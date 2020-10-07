@@ -70,6 +70,8 @@ public class StateController {
         return ResponseEntity.ok().body(listWithStateName);
     }
 
+    // TODO: add route to get total confirmed, deaths, recovered, active & average mortality and incident rate
+
 
     @DeleteMapping("delete_states")
     public ResponseEntity<String> deleteAllStates(@RequestBody(required = false) Map<String, String> password) {
