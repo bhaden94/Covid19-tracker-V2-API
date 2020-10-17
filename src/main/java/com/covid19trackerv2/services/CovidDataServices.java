@@ -98,8 +98,8 @@ public class CovidDataServices {
                 doc.setDate(current);
                 doc.setStates(states);
                 this.statesRepo.save(doc);
-                current = current.plusDays(1);
             }
+            current = current.plusDays(1);
         }
         System.out.println("exit state DB population");
     }
@@ -121,8 +121,8 @@ public class CovidDataServices {
                 doc.setDate(current);
                 doc.setCountries(countries);
                 this.countryRepo.save(doc);
-                current = current.plusDays(1);
             }
+            current = current.plusDays(1);
         }
         System.out.println("exit country DB population");
     }
