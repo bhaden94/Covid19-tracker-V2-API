@@ -12,7 +12,6 @@ public class StateDoc {
 
     @Id
     private String id;
-    @JsonFormat(pattern = "MM-dd-yyyy")
     private LocalDate date;
     private List<UsState> states;
 
