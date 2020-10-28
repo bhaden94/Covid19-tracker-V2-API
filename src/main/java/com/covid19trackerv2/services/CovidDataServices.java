@@ -49,7 +49,7 @@ public class CovidDataServices {
         LocalDate date = LocalDate.now(ZoneId.of("UTC")).minusDays(1);
 
         System.out.println("Start daily state stats fetch");
-        if(this.statesRepo.findByDate(date).isEmpty()) {
+        if (this.statesRepo.findByDate(date).isEmpty()) {
             String formattedDate = getFormattedDate();
             Iterable<CSVRecord> records = getRecords(formattedDate, US_STATE_URL);
             List<UsState> states = createStatesList(records);
@@ -68,7 +68,7 @@ public class CovidDataServices {
         LocalDate date = LocalDate.now(ZoneId.of("UTC")).minusDays(1);
 
         System.out.println("Start daily country stats fetch");
-        if(this.countryRepo.findByDate(date).isEmpty()) {
+        if (this.countryRepo.findByDate(date).isEmpty()) {
             String formattedDate = getFormattedDate();
             Iterable<CSVRecord> records = getRecords(formattedDate, COUNTRY_URL);
             List<Country> countries = createCountryList(records);
@@ -168,6 +168,12 @@ public class CovidDataServices {
             } else {
                 country.setCountry(record.get("Country_Region").toLowerCase());
             }
+            // special case where the name of south korea has changed throughout data
+            if (country.getCountry().equals("korea, south") ||
+                    country.getCountry().equals("republic of korea")) {
+                country.setCountry("south korea");
+            }
+
             // values that are in all records
             country.setConfirmed(getLongValueFromRecord(record.get("Confirmed")));
             country.setDeaths(getLongValueFromRecord(record.get("Deaths")));
