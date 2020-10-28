@@ -10,6 +10,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -173,6 +174,9 @@ public class CovidDataServices {
                     country.getCountry().equals("republic of korea")) {
                 country.setCountry("south korea");
             }
+            // special case for congo countries that have parentheses in them
+            // must remove them to make working with this data on the frontend easier
+            country.setCountry(country.getCountry().replaceAll("[()]", ""));
 
             // values that are in all records
             country.setConfirmed(getLongValueFromRecord(record.get("Confirmed")));
