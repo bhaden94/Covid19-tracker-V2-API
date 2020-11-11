@@ -10,7 +10,6 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -28,21 +27,44 @@ import static java.time.temporal.ChronoUnit.DAYS;
 @Service
 public class CovidDataServices {
 
+    /* STATE CONSTANTS */
     private final String US_STATE_URL = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports_us/";
     private final int STATE_START_YEAR = 2020;
     private final int STATE_START_MONTH = 4;
     private final int STATE_START_DAY = 12;
 
+    /* COUNTRY CONSTANTS */
     private final String COUNTRY_URL = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/";
     private final int COUNTRY_START_YEAR = 2020;
     private final int COUNTRY_START_MONTH = 1;
     private final int COUNTRY_START_DAY = 22;
 
+    /* CSV HEADER CONSTANTS */
+    // general
+    private final String CONFIRMED = "Confirmed";
+    private final String DEATHS = "Deaths";
+    private final String RECOVERED = "Recovered";
+    private final String ACTIVE = "Active";
+    private final String MORTALITY_AFTER_NOV_9 = "Case_Fatality_Ratio";
+    // state specific
+    private final String PROVINCE_STATE = "Province_State";
+    private final String STATE_INCIDENT_RATE = "Incident_Rate";
+    private final String MORTALITY_RATE = "Mortality_Rate";
+    // country specific
+    private final String COUNTRY_REGION_SLASH = "Country/Region";
+    private final String COUNTRY_REGION_UNDERSCORE = "Country_Region";
+    private final String COUNTRY_INCIDENCE_RATE = "Incidence_Rate";
+    private final String COUNTRY_MORTALITY_BEFORE_NOV_9 = "Case-Fatality_Ratio";
+
+    /* REPOSITORIES */
     @Autowired
     private UsStateRepository statesRepo;
 
     @Autowired
     private CountryRepository countryRepo;
+
+
+    /* METHODS */
 
     // run at 0615 UTC everyday in AsyncDBLoad class
     public void fetchDailyStateStats() throws IOException, InterruptedException {
@@ -148,13 +170,19 @@ public class CovidDataServices {
         List<UsState> states = new ArrayList<>();
         for (CSVRecord record : records) {
             UsState state = new UsState();
-            state.setState(record.get("Province_State").toLowerCase());
-            state.setConfirmed(getLongValueFromRecord(record.get("Confirmed")));
-            state.setDeaths(getLongValueFromRecord(record.get("Deaths")));
-            state.setRecovered(getLongValueFromRecord(record.get("Recovered")));
-            state.setActive(getLongValueFromRecord(record.get("Active")));
-            state.setIncidentRate(getDoubleValueFromRecord(record.get("Incident_Rate")));
-            state.setMortalityRate(getDoubleValueFromRecord(record.get("Mortality_Rate")));
+            state.setState(record.get(PROVINCE_STATE).toLowerCase());
+            state.setConfirmed(getLongValueFromRecord(record.get(CONFIRMED)));
+            state.setDeaths(getLongValueFromRecord(record.get(DEATHS)));
+            state.setRecovered(getLongValueFromRecord(record.get(RECOVERED)));
+            state.setActive(getLongValueFromRecord(record.get(ACTIVE)));
+            state.setIncidentRate(getDoubleValueFromRecord(record.get(STATE_INCIDENT_RATE)));
+            // Nov 9th and beyond is Case_Fatality_Ratio
+            if(record.isMapped(MORTALITY_RATE)) {
+                state.setMortalityRate(getDoubleValueFromRecord(record.get(MORTALITY_RATE)));
+            } else {
+                state.setMortalityRate(getDoubleValueFromRecord(record.get(MORTALITY_AFTER_NOV_9)));
+            }
+
             states.add(state);
         }
         return states;
@@ -164,10 +192,10 @@ public class CovidDataServices {
         Map<String, Country> countries = new HashMap<>();
         for (CSVRecord record : records) {
             Country country = new Country();
-            if (record.isMapped("Country/Region")) {
-                country.setCountry(record.get("Country/Region").toLowerCase());
+            if (record.isMapped(COUNTRY_REGION_SLASH)) {
+                country.setCountry(record.get(COUNTRY_REGION_SLASH).toLowerCase());
             } else {
-                country.setCountry(record.get("Country_Region").toLowerCase());
+                country.setCountry(record.get(COUNTRY_REGION_UNDERSCORE).toLowerCase());
             }
             // special case where the name of south korea has changed throughout data
             if (country.getCountry().equals("korea, south") ||
@@ -179,23 +207,26 @@ public class CovidDataServices {
             country.setCountry(country.getCountry().replaceAll("[()]", ""));
 
             // values that are in all records
-            country.setConfirmed(getLongValueFromRecord(record.get("Confirmed")));
-            country.setDeaths(getLongValueFromRecord(record.get("Deaths")));
-            country.setRecovered(getLongValueFromRecord(record.get("Recovered")));
+            country.setConfirmed(getLongValueFromRecord(record.get(CONFIRMED)));
+            country.setDeaths(getLongValueFromRecord(record.get(DEATHS)));
+            country.setRecovered(getLongValueFromRecord(record.get(RECOVERED)));
 
             // values that are not in all records
-            if (record.isMapped("Active")) {
-                country.setActive(getLongValueFromRecord(record.get("Active")));
+            if (record.isMapped(ACTIVE)) {
+                country.setActive(getLongValueFromRecord(record.get(ACTIVE)));
             } else {
                 country.setActive(0L);
             }
-            if (record.isMapped("Incidence_Rate")) {
-                country.setIncidentRate(getDoubleValueFromRecord(record.get("Incidence_Rate")));
+            if (record.isMapped(COUNTRY_INCIDENCE_RATE)) {
+                country.setIncidentRate(getDoubleValueFromRecord(record.get(COUNTRY_INCIDENCE_RATE)));
             } else {
                 country.setIncidentRate(0.0);
             }
-            if (record.isMapped("Case-Fatality_Ratio")) {
-                country.setMortalityRate(getDoubleValueFromRecord(record.get("Case-Fatality_Ratio")));
+            // Nov 9th and beyond is Case_Fatality_Ratio
+            if (record.isMapped(COUNTRY_MORTALITY_BEFORE_NOV_9)) {
+                country.setMortalityRate(getDoubleValueFromRecord(record.get(COUNTRY_MORTALITY_BEFORE_NOV_9)));
+            } else if(record.isMapped(MORTALITY_AFTER_NOV_9)) {
+                country.setMortalityRate(getDoubleValueFromRecord(record.get(MORTALITY_AFTER_NOV_9)));
             } else {
                 country.setMortalityRate(0.0);
             }
