@@ -45,15 +45,15 @@ public class CovidDataServices {
     private final String DEATHS = "Deaths";
     private final String RECOVERED = "Recovered";
     private final String ACTIVE = "Active";
+    private final String INCIDENT_RATE = "Incident_Rate";
     private final String MORTALITY_AFTER_NOV_9 = "Case_Fatality_Ratio";
     // state specific
     private final String PROVINCE_STATE = "Province_State";
-    private final String STATE_INCIDENT_RATE = "Incident_Rate";
     private final String MORTALITY_RATE = "Mortality_Rate";
     // country specific
     private final String COUNTRY_REGION_SLASH = "Country/Region";
     private final String COUNTRY_REGION_UNDERSCORE = "Country_Region";
-    private final String COUNTRY_INCIDENCE_RATE = "Incidence_Rate";
+    private final String COUNTRY_INCIDENCE_RATE_BEFORE_NOV_9 = "Incidence_Rate";
     private final String COUNTRY_MORTALITY_BEFORE_NOV_9 = "Case-Fatality_Ratio";
 
     /* REPOSITORIES */
@@ -175,7 +175,7 @@ public class CovidDataServices {
             state.setDeaths(getLongValueFromRecord(record.get(DEATHS)));
             state.setRecovered(getLongValueFromRecord(record.get(RECOVERED)));
             state.setActive(getLongValueFromRecord(record.get(ACTIVE)));
-            state.setIncidentRate(getDoubleValueFromRecord(record.get(STATE_INCIDENT_RATE)));
+            state.setIncidentRate(getDoubleValueFromRecord(record.get(INCIDENT_RATE)));
             // Nov 9th and beyond is Case_Fatality_Ratio
             if(record.isMapped(MORTALITY_RATE)) {
                 state.setMortalityRate(getDoubleValueFromRecord(record.get(MORTALITY_RATE)));
@@ -217,8 +217,10 @@ public class CovidDataServices {
             } else {
                 country.setActive(0L);
             }
-            if (record.isMapped(COUNTRY_INCIDENCE_RATE)) {
-                country.setIncidentRate(getDoubleValueFromRecord(record.get(COUNTRY_INCIDENCE_RATE)));
+            if (record.isMapped(COUNTRY_INCIDENCE_RATE_BEFORE_NOV_9)) {
+                country.setIncidentRate(getDoubleValueFromRecord(record.get(COUNTRY_INCIDENCE_RATE_BEFORE_NOV_9)));
+            } else if (record.isMapped(INCIDENT_RATE)) {
+                country.setIncidentRate(getDoubleValueFromRecord(record.get(INCIDENT_RATE)));
             } else {
                 country.setIncidentRate(0.0);
             }
