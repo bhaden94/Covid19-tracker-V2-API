@@ -1,1 +1,1 @@
-web: java -Xss1m -jar target/myapp.jar
+web: java -Xss1m -jar build/libs/covid-19-trackerv2-0.0.1-SNAPSHOT
