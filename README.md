@@ -70,8 +70,8 @@ To install the Spring Boot backend follow the below steps. After this is success
 
 ### Prerequisites
 
-Java 11 JDK or higher must be installed.
-MongoDB must be installed and running with a database named `covid_db`.
+* Java 11 JDK or higher must be installed.
+* MongoDB must be installed and running with a database named `covid_db`.
 
 ### Installation
 
