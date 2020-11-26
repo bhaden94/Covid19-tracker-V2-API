@@ -28,33 +28,33 @@ import static java.time.temporal.ChronoUnit.DAYS;
 public class CovidDataServices {
 
     /* STATE CONSTANTS */
-    private final String US_STATE_URL = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports_us/";
-    private final int STATE_START_YEAR = 2020;
-    private final int STATE_START_MONTH = 4;
-    private final int STATE_START_DAY = 12;
+    private final static String US_STATE_URL = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports_us/";
+    private final static int STATE_START_YEAR = 2020;
+    private final static int STATE_START_MONTH = 4;
+    private final static int STATE_START_DAY = 12;
 
     /* COUNTRY CONSTANTS */
-    private final String COUNTRY_URL = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/";
-    private final int COUNTRY_START_YEAR = 2020;
-    private final int COUNTRY_START_MONTH = 1;
-    private final int COUNTRY_START_DAY = 22;
+    private final static String COUNTRY_URL = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/";
+    private final static int COUNTRY_START_YEAR = 2020;
+    private final static int COUNTRY_START_MONTH = 1;
+    private final static int COUNTRY_START_DAY = 22;
 
     /* CSV HEADER CONSTANTS */
     // general
-    private final String CONFIRMED = "Confirmed";
-    private final String DEATHS = "Deaths";
-    private final String RECOVERED = "Recovered";
-    private final String ACTIVE = "Active";
-    private final String INCIDENT_RATE = "Incident_Rate";
-    private final String MORTALITY_AFTER_NOV_9 = "Case_Fatality_Ratio";
+    private final static String CONFIRMED = "Confirmed";
+    private final static String DEATHS = "Deaths";
+    private final static String RECOVERED = "Recovered";
+    private final static String ACTIVE = "Active";
+    private final static String INCIDENT_RATE = "Incident_Rate";
+    private final static String MORTALITY_AFTER_NOV_9 = "Case_Fatality_Ratio";
     // state specific
-    private final String PROVINCE_STATE = "Province_State";
-    private final String MORTALITY_RATE = "Mortality_Rate";
+    private final static String PROVINCE_STATE = "Province_State";
+    private final static String MORTALITY_RATE = "Mortality_Rate";
     // country specific
-    private final String COUNTRY_REGION_SLASH = "Country/Region";
-    private final String COUNTRY_REGION_UNDERSCORE = "Country_Region";
-    private final String COUNTRY_INCIDENCE_RATE_BEFORE_NOV_9 = "Incidence_Rate";
-    private final String COUNTRY_MORTALITY_BEFORE_NOV_9 = "Case-Fatality_Ratio";
+    private final static String COUNTRY_REGION_SLASH = "Country/Region";
+    private final static String COUNTRY_REGION_UNDERSCORE = "Country_Region";
+    private final static String COUNTRY_INCIDENCE_RATE_BEFORE_NOV_9 = "Incidence_Rate";
+    private final static String COUNTRY_MORTALITY_BEFORE_NOV_9 = "Case-Fatality_Ratio";
 
     /* REPOSITORIES */
     @Autowired
@@ -170,7 +170,7 @@ public class CovidDataServices {
         List<UsState> states = new ArrayList<>();
         for (CSVRecord record : records) {
             UsState state = new UsState();
-            state.setState(record.get(PROVINCE_STATE).toLowerCase());
+            state.setState(record.get(PROVINCE_STATE).toLowerCase(Locale.US));
             state.setConfirmed(getLongValueFromRecord(record.get(CONFIRMED)));
             state.setDeaths(getLongValueFromRecord(record.get(DEATHS)));
             state.setRecovered(getLongValueFromRecord(record.get(RECOVERED)));
@@ -193,9 +193,9 @@ public class CovidDataServices {
         for (CSVRecord record : records) {
             Country country = new Country();
             if (record.isMapped(COUNTRY_REGION_SLASH)) {
-                country.setCountry(record.get(COUNTRY_REGION_SLASH).toLowerCase());
+                country.setCountry(record.get(COUNTRY_REGION_SLASH).toLowerCase(Locale.US));
             } else {
-                country.setCountry(record.get(COUNTRY_REGION_UNDERSCORE).toLowerCase());
+                country.setCountry(record.get(COUNTRY_REGION_UNDERSCORE).toLowerCase(Locale.US));
             }
             // special case where the name of south korea has changed throughout data
             if (country.getCountry().equals("korea, south") ||
@@ -253,13 +253,14 @@ public class CovidDataServices {
     }
 
     private long getLongValueFromRecord(String numToParse) {
+        String numStr = numToParse;
         long num = 0;
         int dotIndex = numToParse.indexOf('.');
         if (dotIndex != -1) {
-            numToParse = numToParse.substring(0, dotIndex);
+            numStr = numToParse.substring(0, dotIndex);
         }
         try {
-            num = Long.parseLong(numToParse);
+            num = Long.parseLong(numStr);
         } catch (NumberFormatException ignored) {
         }
         return num;

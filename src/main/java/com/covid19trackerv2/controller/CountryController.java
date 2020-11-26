@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -61,7 +62,7 @@ public class CountryController {
 
     @GetMapping("")
     public ResponseEntity<List<CountryDoc>> getCountryByName(@RequestParam String name) {
-        List<CountryDoc> listWithCountryName = this.countryRepo.findByCountriesCountry(name.toLowerCase());
+        List<CountryDoc> listWithCountryName = this.countryRepo.findByCountriesCountry(name.toLowerCase(Locale.US));
         for (CountryDoc countryDoc : listWithCountryName) {
             countryDoc.setCountries(
                     countryDoc.getCountries().stream().filter(
