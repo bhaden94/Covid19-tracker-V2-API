@@ -61,6 +61,7 @@
 ## Built With
 * [Spring Initializer](https://start.spring.io/)
 * [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
+* [Code Inspector Dashboard](https://frontend.code-inspector.com/public/project/16564/Covid19-tracker-V2-API/dashboard)
 
 
 <!-- GETTING STARTED -->
