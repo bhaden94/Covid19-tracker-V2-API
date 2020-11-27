@@ -162,4 +162,3 @@ Brady Haden - [LinkedIn](https://www.linkedin.com/in/brady-s-haden/)
 
 [code-quality-shield]: https://www.code-inspector.com/project/16564/score/svg
 [code-grade]: https://www.code-inspector.com/project/16564/status/svg
-
