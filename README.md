@@ -33,9 +33,9 @@
     <br />
     <a href="https://covid-tracker-v2.herokuapp.com/">View On Heroku</a>
     ·
-    <a href="https://github.com/bhaden94/Covid19-tracker-V2-API/issues">Report Bug</a>
+    <a href="https://github.com/bhaden94/Covid19-tracker-V2-API/issues">Report Bug/Request Feature</a>
     ·
-    <a href="https://github.com/bhaden94/Covid19-tracker-V2-API/issues">Request Feature</a>
+    <a href="https://frontend.code-inspector.com/public/project/16564/Covid19-tracker-V2-API/dashboard">Code Inspector Dashboard</a>
   </p>
 </p>
 
@@ -61,8 +61,6 @@
 ## Built With
 * [Spring Initializer](https://start.spring.io/)
 * [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
-* [Code Inspector Dashboard](https://frontend.code-inspector.com/public/project/16564/Covid19-tracker-V2-API/dashboard)
-
 
 <!-- GETTING STARTED -->
 ## Getting Started
