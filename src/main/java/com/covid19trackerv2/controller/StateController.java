@@ -80,8 +80,8 @@ public class StateController {
         totals.put("deaths", 0L);
         // gets single document by most recent date
         Optional<StateDoc> mostRecent = this.statesRepo.findTopByOrderByDateDesc();
-        if(mostRecent.isPresent()) {
-            for(UsState state : mostRecent.get().getStates()) {
+        if (mostRecent.isPresent()) {
+            for (UsState state : mostRecent.get().getStates()) {
                 totals.put("confirmed", totals.get("confirmed") + state.getConfirmed());
                 totals.put("active", totals.get("active") + state.getActive());
                 totals.put("recovered", totals.get("recovered") + state.getRecovered());
@@ -100,11 +100,11 @@ public class StateController {
         totals.put("deaths", 0L);
         // gets single document by most recent date
         Optional<StateDoc> mostRecent = this.statesRepo.findTopByOrderByDateDesc();
-        if(mostRecent.isPresent()) {
-            for(UsState state : mostRecent.get().getStates()) {
+        if (mostRecent.isPresent()) {
+            for (UsState state : mostRecent.get().getStates()) {
                 // only care about the one state we are looking for
                 // once found set values and break out of loop
-                if(state.getState().equalsIgnoreCase(name)) {
+                if (state.getState().equalsIgnoreCase(name)) {
                     totals.put("confirmed", state.getConfirmed());
                     totals.put("active", state.getActive());
                     totals.put("recovered", state.getRecovered());

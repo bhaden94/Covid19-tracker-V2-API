@@ -11,4 +11,6 @@ public interface CountryRepository extends MongoRepository<CountryDoc, String> {
     Optional<CountryDoc> findByDate(LocalDate date);
 
     List<CountryDoc> findByCountriesCountry(String name);
+
+    Optional<CountryDoc> findTopByOrderByDateDesc();
 }
