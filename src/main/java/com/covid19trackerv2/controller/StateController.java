@@ -1,6 +1,7 @@
 package com.covid19trackerv2.controller;
 
 import com.covid19trackerv2.model.state.StateDoc;
+import com.covid19trackerv2.model.state.UsState;
 import com.covid19trackerv2.repository.UsStateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -11,10 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -60,15 +58,62 @@ public class StateController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<StateDoc>> getCountryByName(@RequestParam String name) {
+    public ResponseEntity<List<StateDoc>> getStateByName(@RequestParam String name) {
+        // find all docs that have name of state in it
         List<StateDoc> listWithStateName = this.statesRepo.findByStatesState(name.toLowerCase(Locale.US));
+        // filter the list to only include that state
         for (StateDoc stateDoc : listWithStateName) {
             stateDoc.setStates(
                     stateDoc.getStates().stream().filter(
-                            country -> country.getState().equalsIgnoreCase(name))
+                            state -> state.getState().equalsIgnoreCase(name))
                             .collect(Collectors.toList()));
         }
         return ResponseEntity.ok().body(listWithStateName);
+    }
+
+    @GetMapping("/all/totals")
+    public ResponseEntity<Map<String, Long>> getAllStateTotals() {
+        Map<String, Long> totals = new HashMap<>();
+        totals.put("confirmed", 0L);
+        totals.put("active", 0L);
+        totals.put("recovered", 0L);
+        totals.put("deaths", 0L);
+        // gets single document by most recent date
+        Optional<StateDoc> mostRecent = this.statesRepo.findTopByOrderByDateDesc();
+        if(mostRecent.isPresent()) {
+            for(UsState state : mostRecent.get().getStates()) {
+                totals.put("confirmed", totals.get("confirmed") + state.getConfirmed());
+                totals.put("active", totals.get("active") + state.getActive());
+                totals.put("recovered", totals.get("recovered") + state.getRecovered());
+                totals.put("deaths", totals.get("deaths") + state.getDeaths());
+            }
+        }
+        return ResponseEntity.ok().body(totals);
+    }
+
+    @GetMapping("/totals")
+    public ResponseEntity<Map<String, Long>> getStateTotals(@RequestParam String name) {
+        Map<String, Long> totals = new HashMap<>();
+        totals.put("confirmed", 0L);
+        totals.put("active", 0L);
+        totals.put("recovered", 0L);
+        totals.put("deaths", 0L);
+        // gets single document by most recent date
+        Optional<StateDoc> mostRecent = this.statesRepo.findTopByOrderByDateDesc();
+        if(mostRecent.isPresent()) {
+            for(UsState state : mostRecent.get().getStates()) {
+                // only care about the one state we are looking for
+                // once found set values and break out of loop
+                if(state.getState().equalsIgnoreCase(name)) {
+                    totals.put("confirmed", state.getConfirmed());
+                    totals.put("active", state.getActive());
+                    totals.put("recovered", state.getRecovered());
+                    totals.put("deaths", state.getDeaths());
+                    break;
+                }
+            }
+        }
+        return ResponseEntity.ok().body(totals);
     }
 
     // TODO: add route to get total confirmed, deaths, recovered, active & average mortality and incident rate

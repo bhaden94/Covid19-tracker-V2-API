@@ -11,4 +11,6 @@ public interface UsStateRepository extends MongoRepository<StateDoc, String> {
     Optional<StateDoc> findByDate(LocalDate date);
 
     List<StateDoc> findByStatesState(String name);
+
+    Optional<StateDoc> findTopByOrderByDateDesc();
 }
