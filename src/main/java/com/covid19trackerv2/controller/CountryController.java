@@ -1,5 +1,6 @@
 package com.covid19trackerv2.controller;
 
+import com.covid19trackerv2.model.country.Country;
 import com.covid19trackerv2.model.country.CountryDoc;
 import com.covid19trackerv2.repository.CountryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -70,6 +68,51 @@ public class CountryController {
                             .collect(Collectors.toList()));
         }
         return ResponseEntity.ok().body(listWithCountryName);
+    }
+
+    @GetMapping("/all/totals")
+    public ResponseEntity<Map<String, Long>> getAllCountryTotals() {
+        Map<String, Long> totals = new HashMap<>();
+        totals.put("confirmed", 0L);
+        totals.put("active", 0L);
+        totals.put("recovered", 0L);
+        totals.put("deaths", 0L);
+        // gets single document by most recent date
+        Optional<CountryDoc> mostRecent = this.countryRepo.findTopByOrderByDateDesc();
+        if (mostRecent.isPresent()) {
+            for (Country country : mostRecent.get().getCountries()) {
+                totals.put("confirmed", totals.get("confirmed") + country.getConfirmed());
+                totals.put("active", totals.get("active") + country.getActive());
+                totals.put("recovered", totals.get("recovered") + country.getRecovered());
+                totals.put("deaths", totals.get("deaths") + country.getDeaths());
+            }
+        }
+        return ResponseEntity.ok().body(totals);
+    }
+
+    @GetMapping("/totals")
+    public ResponseEntity<Map<String, Long>> getCountryTotals(@RequestParam String name) {
+        Map<String, Long> totals = new HashMap<>();
+        totals.put("confirmed", 0L);
+        totals.put("active", 0L);
+        totals.put("recovered", 0L);
+        totals.put("deaths", 0L);
+        // gets single document by most recent date
+        Optional<CountryDoc> mostRecent = this.countryRepo.findTopByOrderByDateDesc();
+        if (mostRecent.isPresent()) {
+            for (Country country : mostRecent.get().getCountries()) {
+                // only care about the one country we are looking for
+                // once found set values and break out of loop
+                if (country.getCountry().equalsIgnoreCase(name)) {
+                    totals.put("confirmed", country.getConfirmed());
+                    totals.put("active", country.getActive());
+                    totals.put("recovered", country.getRecovered());
+                    totals.put("deaths", country.getDeaths());
+                    break;
+                }
+            }
+        }
+        return ResponseEntity.ok().body(totals);
     }
 
     // TODO: add route to get total confirmed, deaths, recovered, active & average mortality and incident rate
