@@ -115,6 +115,22 @@ public class CountryController {
         return ResponseEntity.ok().body(totals);
     }
 
+    @GetMapping("/rates/incident_rate")
+    public ResponseEntity<Map<String, Double>> getCountryIncidentRate() {
+        Map<String, Double> rate = new HashMap<>();
+        rate.put("incident_rate", 0.0);
+
+        return ResponseEntity.ok().body(rate);
+    }
+
+    @GetMapping("/rates/mortality_rate")
+    public ResponseEntity<Map<String, Double>> getCountryMortalityRate() {
+        Map<String, Double> rate = new HashMap<>();
+        rate.put("mortality_rate", 0.0);
+
+        return ResponseEntity.ok().body(rate);
+    }
+
     // TODO: add route to get total confirmed, deaths, recovered, active & average mortality and incident rate
 
 
