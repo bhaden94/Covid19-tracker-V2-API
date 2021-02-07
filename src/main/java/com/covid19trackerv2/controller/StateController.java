@@ -125,6 +125,7 @@ public class StateController {
         double sum = 0.0;
         if (mostRecent.isPresent()) {
             for (UsState state : mostRecent.get().getStates()) {
+                // if we are only looking for one state then we can return its rate immediately
                 if (name != null) {
                     if (state.getState().equalsIgnoreCase(name)) {
                         rate.put("incident_rate", state.getIncidentRate());
@@ -143,17 +144,25 @@ public class StateController {
     public ResponseEntity<Map<String, Double>> getStateMortalityRate(@RequestParam(required = false) String name) {
         Map<String, Double> rate = new HashMap<>();
         rate.put("mortality_rate", 0.0);
-
-        if (name != null) {
-            // handle single state rate
-        } else {
-            // get rate for all states
+        // gets single document by most recent date
+        Optional<StateDoc> mostRecent = this.statesRepo.findTopByOrderByDateDesc();
+        double sum = 0.0;
+        if (mostRecent.isPresent()) {
+            for (UsState state : mostRecent.get().getStates()) {
+                // if we are only looking for one state then we can return its rate immediately
+                if (name != null) {
+                    if (state.getState().equalsIgnoreCase(name)) {
+                        rate.put("mortality_rate", state.getMortalityRate());
+                        return ResponseEntity.ok().body(rate);
+                    }
+                } else {
+                    sum += state.getMortalityRate();
+                }
+            }
+            rate.put("mortality_rate", sum / mostRecent.get().getStates().size());
         }
-
         return ResponseEntity.ok().body(rate);
     }
-
-    // TODO: add route to get total confirmed, deaths, recovered, active & average mortality and incident rate
 
 
     @DeleteMapping("delete_states")
