@@ -82,7 +82,12 @@ public class CountryController {
         if (mostRecent.isPresent()) {
             for (Country country : mostRecent.get().getCountries()) {
                 // if we only care about one country then stop there
-                if(name != null) {
+                if (name == null) {
+                    totals.put("confirmed", totals.get("confirmed") + country.getConfirmed());
+                    totals.put("active", totals.get("active") + country.getActive());
+                    totals.put("recovered", totals.get("recovered") + country.getRecovered());
+                    totals.put("deaths", totals.get("deaths") + country.getDeaths());
+                } else {
                     if (country.getCountry().equalsIgnoreCase(name)) {
                         totals.put("confirmed", country.getConfirmed());
                         totals.put("active", country.getActive());
@@ -90,11 +95,6 @@ public class CountryController {
                         totals.put("deaths", country.getDeaths());
                         return ResponseEntity.ok().body(totals);
                     }
-                } else {
-                    totals.put("confirmed", totals.get("confirmed") + country.getConfirmed());
-                    totals.put("active", totals.get("active") + country.getActive());
-                    totals.put("recovered", totals.get("recovered") + country.getRecovered());
-                    totals.put("deaths", totals.get("deaths") + country.getDeaths());
                 }
             }
         }
@@ -110,13 +110,13 @@ public class CountryController {
         double sum = 0.0;
         if (mostRecent.isPresent()) {
             for (Country country : mostRecent.get().getCountries()) {
-                if (name != null) {
+                if (name == null) {
+                    sum += country.getIncidentRate();
+                } else {
                     if (country.getCountry().equalsIgnoreCase(name)) {
                         rate.put("incident_rate", country.getIncidentRate());
                         return ResponseEntity.ok().body(rate);
                     }
-                } else {
-                    sum += country.getIncidentRate();
                 }
             }
             rate.put("incident_rate", sum / mostRecent.get().getCountries().size());
@@ -134,13 +134,13 @@ public class CountryController {
         double sum = 0.0;
         if (mostRecent.isPresent()) {
             for (Country country : mostRecent.get().getCountries()) {
-                if (name != null) {
+                if (name == null) {
+                    sum += country.getMortalityRate();
+                } else {
                     if (country.getCountry().equalsIgnoreCase(name)) {
                         rate.put("mortality_rate", country.getMortalityRate());
                         return ResponseEntity.ok().body(rate);
                     }
-                } else {
-                    sum += country.getMortalityRate();
                 }
             }
             rate.put("mortality_rate", sum / mostRecent.get().getCountries().size());

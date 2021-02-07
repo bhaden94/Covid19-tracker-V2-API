@@ -83,7 +83,12 @@ public class StateController {
         if (mostRecent.isPresent()) {
             for (UsState state : mostRecent.get().getStates()) {
                 // if we only care about one state then stop there
-                if (name != null) {
+                if (name == null) {
+                    totals.put("confirmed", totals.get("confirmed") + state.getConfirmed());
+                    totals.put("active", totals.get("active") + state.getActive());
+                    totals.put("recovered", totals.get("recovered") + state.getRecovered());
+                    totals.put("deaths", totals.get("deaths") + state.getDeaths());
+                } else {
                     if (state.getState().equalsIgnoreCase(name)) {
                         totals.put("confirmed", state.getConfirmed());
                         totals.put("active", state.getActive());
@@ -91,11 +96,6 @@ public class StateController {
                         totals.put("deaths", state.getDeaths());
                         return ResponseEntity.ok().body(totals);
                     }
-                } else {
-                    totals.put("confirmed", totals.get("confirmed") + state.getConfirmed());
-                    totals.put("active", totals.get("active") + state.getActive());
-                    totals.put("recovered", totals.get("recovered") + state.getRecovered());
-                    totals.put("deaths", totals.get("deaths") + state.getDeaths());
                 }
             }
         }
@@ -112,13 +112,13 @@ public class StateController {
         if (mostRecent.isPresent()) {
             for (UsState state : mostRecent.get().getStates()) {
                 // if we are only looking for one state then we can return its rate immediately
-                if (name != null) {
+                if (name == null) {
+                    sum += state.getIncidentRate();
+                } else {
                     if (state.getState().equalsIgnoreCase(name)) {
                         rate.put("incident_rate", state.getIncidentRate());
                         return ResponseEntity.ok().body(rate);
                     }
-                } else {
-                    sum += state.getIncidentRate();
                 }
             }
             rate.put("incident_rate", sum / mostRecent.get().getStates().size());
@@ -136,13 +136,13 @@ public class StateController {
         if (mostRecent.isPresent()) {
             for (UsState state : mostRecent.get().getStates()) {
                 // if we are only looking for one state then we can return its rate immediately
-                if (name != null) {
+                if (name == null) {
+                    sum += state.getMortalityRate();
+                } else {
                     if (state.getState().equalsIgnoreCase(name)) {
                         rate.put("mortality_rate", state.getMortalityRate());
                         return ResponseEntity.ok().body(rate);
                     }
-                } else {
-                    sum += state.getMortalityRate();
                 }
             }
             rate.put("mortality_rate", sum / mostRecent.get().getStates().size());
