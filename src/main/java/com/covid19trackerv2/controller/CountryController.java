@@ -70,28 +70,8 @@ public class CountryController {
         return ResponseEntity.ok().body(listWithCountryName);
     }
 
-    @GetMapping("/all/totals")
-    public ResponseEntity<Map<String, Long>> getAllCountryTotals() {
-        Map<String, Long> totals = new HashMap<>();
-        totals.put("confirmed", 0L);
-        totals.put("active", 0L);
-        totals.put("recovered", 0L);
-        totals.put("deaths", 0L);
-        // gets single document by most recent date
-        Optional<CountryDoc> mostRecent = this.countryRepo.findTopByOrderByDateDesc();
-        if (mostRecent.isPresent()) {
-            for (Country country : mostRecent.get().getCountries()) {
-                totals.put("confirmed", totals.get("confirmed") + country.getConfirmed());
-                totals.put("active", totals.get("active") + country.getActive());
-                totals.put("recovered", totals.get("recovered") + country.getRecovered());
-                totals.put("deaths", totals.get("deaths") + country.getDeaths());
-            }
-        }
-        return ResponseEntity.ok().body(totals);
-    }
-
     @GetMapping("/totals")
-    public ResponseEntity<Map<String, Long>> getCountryTotals(@RequestParam String name) {
+    public ResponseEntity<Map<String, Long>> getCountryTotals(@RequestParam(required = false) String name) {
         Map<String, Long> totals = new HashMap<>();
         totals.put("confirmed", 0L);
         totals.put("active", 0L);
@@ -101,21 +81,73 @@ public class CountryController {
         Optional<CountryDoc> mostRecent = this.countryRepo.findTopByOrderByDateDesc();
         if (mostRecent.isPresent()) {
             for (Country country : mostRecent.get().getCountries()) {
-                // only care about the one country we are looking for
-                // once found set values and break out of loop
-                if (country.getCountry().equalsIgnoreCase(name)) {
-                    totals.put("confirmed", country.getConfirmed());
-                    totals.put("active", country.getActive());
-                    totals.put("recovered", country.getRecovered());
-                    totals.put("deaths", country.getDeaths());
-                    break;
+                // if we only care about one country then stop there
+                if (name == null) {
+                    totals.put("confirmed", totals.get("confirmed") + country.getConfirmed());
+                    totals.put("active", totals.get("active") + country.getActive());
+                    totals.put("recovered", totals.get("recovered") + country.getRecovered());
+                    totals.put("deaths", totals.get("deaths") + country.getDeaths());
+                } else {
+                    if (country.getCountry().equalsIgnoreCase(name)) {
+                        totals.put("confirmed", country.getConfirmed());
+                        totals.put("active", country.getActive());
+                        totals.put("recovered", country.getRecovered());
+                        totals.put("deaths", country.getDeaths());
+                        return ResponseEntity.ok().body(totals);
+                    }
                 }
             }
         }
         return ResponseEntity.ok().body(totals);
     }
 
-    // TODO: add route to get total confirmed, deaths, recovered, active & average mortality and incident rate
+    @GetMapping("/rates/incident_rate")
+    public ResponseEntity<Map<String, Double>> getCountryIncidentRate(@RequestParam(required = false) String name) {
+        Map<String, Double> rate = new HashMap<>();
+        rate.put("incident_rate", 0.0);
+        // gets single document by most recent date
+        Optional<CountryDoc> mostRecent = this.countryRepo.findTopByOrderByDateDesc();
+        double sum = 0.0;
+        if (mostRecent.isPresent()) {
+            for (Country country : mostRecent.get().getCountries()) {
+                if (name == null) {
+                    sum += country.getIncidentRate();
+                } else {
+                    if (country.getCountry().equalsIgnoreCase(name)) {
+                        rate.put("incident_rate", country.getIncidentRate());
+                        return ResponseEntity.ok().body(rate);
+                    }
+                }
+            }
+            rate.put("incident_rate", sum / mostRecent.get().getCountries().size());
+        }
+
+        return ResponseEntity.ok().body(rate);
+    }
+
+    @GetMapping("/rates/mortality_rate")
+    public ResponseEntity<Map<String, Double>> getCountryMortalityRate(@RequestParam(required = false) String name) {
+        Map<String, Double> rate = new HashMap<>();
+        rate.put("mortality_rate", 0.0);
+        // gets single document by most recent date
+        Optional<CountryDoc> mostRecent = this.countryRepo.findTopByOrderByDateDesc();
+        double sum = 0.0;
+        if (mostRecent.isPresent()) {
+            for (Country country : mostRecent.get().getCountries()) {
+                if (name == null) {
+                    sum += country.getMortalityRate();
+                } else {
+                    if (country.getCountry().equalsIgnoreCase(name)) {
+                        rate.put("mortality_rate", country.getMortalityRate());
+                        return ResponseEntity.ok().body(rate);
+                    }
+                }
+            }
+            rate.put("mortality_rate", sum / mostRecent.get().getCountries().size());
+        }
+
+        return ResponseEntity.ok().body(rate);
+    }
 
 
     @DeleteMapping("delete_countries")

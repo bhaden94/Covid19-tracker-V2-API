@@ -71,28 +71,8 @@ public class StateController {
         return ResponseEntity.ok().body(listWithStateName);
     }
 
-    @GetMapping("/all/totals")
-    public ResponseEntity<Map<String, Long>> getAllStateTotals() {
-        Map<String, Long> totals = new HashMap<>();
-        totals.put("confirmed", 0L);
-        totals.put("active", 0L);
-        totals.put("recovered", 0L);
-        totals.put("deaths", 0L);
-        // gets single document by most recent date
-        Optional<StateDoc> mostRecent = this.statesRepo.findTopByOrderByDateDesc();
-        if (mostRecent.isPresent()) {
-            for (UsState state : mostRecent.get().getStates()) {
-                totals.put("confirmed", totals.get("confirmed") + state.getConfirmed());
-                totals.put("active", totals.get("active") + state.getActive());
-                totals.put("recovered", totals.get("recovered") + state.getRecovered());
-                totals.put("deaths", totals.get("deaths") + state.getDeaths());
-            }
-        }
-        return ResponseEntity.ok().body(totals);
-    }
-
     @GetMapping("/totals")
-    public ResponseEntity<Map<String, Long>> getStateTotals(@RequestParam String name) {
+    public ResponseEntity<Map<String, Long>> getStateTotals(@RequestParam(required = false) String name) {
         Map<String, Long> totals = new HashMap<>();
         totals.put("confirmed", 0L);
         totals.put("active", 0L);
@@ -102,21 +82,73 @@ public class StateController {
         Optional<StateDoc> mostRecent = this.statesRepo.findTopByOrderByDateDesc();
         if (mostRecent.isPresent()) {
             for (UsState state : mostRecent.get().getStates()) {
-                // only care about the one state we are looking for
-                // once found set values and break out of loop
-                if (state.getState().equalsIgnoreCase(name)) {
-                    totals.put("confirmed", state.getConfirmed());
-                    totals.put("active", state.getActive());
-                    totals.put("recovered", state.getRecovered());
-                    totals.put("deaths", state.getDeaths());
-                    break;
+                // if we only care about one state then stop there
+                if (name == null) {
+                    totals.put("confirmed", totals.get("confirmed") + state.getConfirmed());
+                    totals.put("active", totals.get("active") + state.getActive());
+                    totals.put("recovered", totals.get("recovered") + state.getRecovered());
+                    totals.put("deaths", totals.get("deaths") + state.getDeaths());
+                } else {
+                    if (state.getState().equalsIgnoreCase(name)) {
+                        totals.put("confirmed", state.getConfirmed());
+                        totals.put("active", state.getActive());
+                        totals.put("recovered", state.getRecovered());
+                        totals.put("deaths", state.getDeaths());
+                        return ResponseEntity.ok().body(totals);
+                    }
                 }
             }
         }
         return ResponseEntity.ok().body(totals);
     }
 
-    // TODO: add route to get total confirmed, deaths, recovered, active & average mortality and incident rate
+    @GetMapping("/rates/incident_rate")
+    public ResponseEntity<Map<String, Double>> getStateIncidentRate(@RequestParam(required = false) String name) {
+        Map<String, Double> rate = new HashMap<>();
+        rate.put("incident_rate", 0.0);
+        // gets single document by most recent date
+        Optional<StateDoc> mostRecent = this.statesRepo.findTopByOrderByDateDesc();
+        double sum = 0.0;
+        if (mostRecent.isPresent()) {
+            for (UsState state : mostRecent.get().getStates()) {
+                // if we are only looking for one state then we can return its rate immediately
+                if (name == null) {
+                    sum += state.getIncidentRate();
+                } else {
+                    if (state.getState().equalsIgnoreCase(name)) {
+                        rate.put("incident_rate", state.getIncidentRate());
+                        return ResponseEntity.ok().body(rate);
+                    }
+                }
+            }
+            rate.put("incident_rate", sum / mostRecent.get().getStates().size());
+        }
+        return ResponseEntity.ok().body(rate);
+    }
+
+    @GetMapping("/rates/mortality_rate")
+    public ResponseEntity<Map<String, Double>> getStateMortalityRate(@RequestParam(required = false) String name) {
+        Map<String, Double> rate = new HashMap<>();
+        rate.put("mortality_rate", 0.0);
+        // gets single document by most recent date
+        Optional<StateDoc> mostRecent = this.statesRepo.findTopByOrderByDateDesc();
+        double sum = 0.0;
+        if (mostRecent.isPresent()) {
+            for (UsState state : mostRecent.get().getStates()) {
+                // if we are only looking for one state then we can return its rate immediately
+                if (name == null) {
+                    sum += state.getMortalityRate();
+                } else {
+                    if (state.getState().equalsIgnoreCase(name)) {
+                        rate.put("mortality_rate", state.getMortalityRate());
+                        return ResponseEntity.ok().body(rate);
+                    }
+                }
+            }
+            rate.put("mortality_rate", sum / mostRecent.get().getStates().size());
+        }
+        return ResponseEntity.ok().body(rate);
+    }
 
 
     @DeleteMapping("delete_states")
