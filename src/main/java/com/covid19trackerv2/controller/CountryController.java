@@ -116,17 +116,49 @@ public class CountryController {
     }
 
     @GetMapping("/rates/incident_rate")
-    public ResponseEntity<Map<String, Double>> getCountryIncidentRate() {
+    public ResponseEntity<Map<String, Double>> getCountryIncidentRate(@RequestParam(required = false) String name) {
         Map<String, Double> rate = new HashMap<>();
         rate.put("incident_rate", 0.0);
+        // gets single document by most recent date
+        Optional<CountryDoc> mostRecent = this.countryRepo.findTopByOrderByDateDesc();
+        double sum = 0.0;
+        if (mostRecent.isPresent()) {
+            for (Country country : mostRecent.get().getCountries()) {
+                if (name != null) {
+                    if (country.getCountry().equalsIgnoreCase(name)) {
+                        rate.put("incident_rate", country.getIncidentRate());
+                        return ResponseEntity.ok().body(rate);
+                    }
+                } else {
+                    sum += country.getIncidentRate();
+                }
+            }
+            rate.put("incident_rate", sum / mostRecent.get().getCountries().size());
+        }
 
         return ResponseEntity.ok().body(rate);
     }
 
     @GetMapping("/rates/mortality_rate")
-    public ResponseEntity<Map<String, Double>> getCountryMortalityRate() {
+    public ResponseEntity<Map<String, Double>> getCountryMortalityRate(@RequestParam(required = false) String name) {
         Map<String, Double> rate = new HashMap<>();
         rate.put("mortality_rate", 0.0);
+        // gets single document by most recent date
+        Optional<CountryDoc> mostRecent = this.countryRepo.findTopByOrderByDateDesc();
+        double sum = 0.0;
+        if (mostRecent.isPresent()) {
+            for (Country country : mostRecent.get().getCountries()) {
+                if (name != null) {
+                    if (country.getCountry().equalsIgnoreCase(name)) {
+                        rate.put("mortality_rate", country.getMortalityRate());
+                        return ResponseEntity.ok().body(rate);
+                    }
+                } else {
+                    sum += country.getMortalityRate();
+                }
+            }
+            rate.put("mortality_rate", sum / mostRecent.get().getCountries().size());
+        }
 
         return ResponseEntity.ok().body(rate);
     }
