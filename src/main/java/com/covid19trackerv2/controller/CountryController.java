@@ -149,6 +149,36 @@ public class CountryController {
         return ResponseEntity.ok().body(rate);
     }
 
+    @GetMapping("/days_difference")
+    public ResponseEntity<Map<String, Long>> getDaysDifference(@RequestParam Integer diff) {
+        // gets single document by most recent date
+        Optional<CountryDoc> mostRecent = this.countryRepo.findTopByOrderByDateDesc();
+        if (mostRecent.isPresent()) {
+            LocalDate prevDate = mostRecent.get().getDate().minusDays(diff);
+            // get entry for {diff} number of days difference
+            Optional<CountryDoc> prevEntry = this.countryRepo.findByDate(prevDate);
+            // we want the states array to be the same size so we know they correspond to the same countries
+            // at each index
+            if (prevEntry.isPresent() && prevEntry.get().getCountries().size() == mostRecent.get().getCountries().size()) {
+                Map<String, Long> diffMap = new LinkedHashMap<>();
+                CountryDoc curr = mostRecent.get();
+                CountryDoc prev = prevEntry.get();
+                // build diffMap
+                for (int i = 0; i < prev.getCountries().size(); i++) {
+                    // if the states are the same then we are good
+                    // will need to put in some error handling here in case the states are not the same
+                    if (prev.getCountries().get(i).getCountry().equalsIgnoreCase(curr.getCountries().get(i).getCountry())) {
+                        long difference = curr.getCountries().get(i).getActive() - prev.getCountries().get(i).getActive();
+                        diffMap.put(prev.getCountries().get(i).getCountry(), difference);
+                    }
+                }
+                return ResponseEntity.ok().body(diffMap);
+            }
+        }
+        // not finding an entry should not happen since it is just looking for the most recent
+        return ResponseEntity.notFound().build();
+    }
+
 
     @DeleteMapping("delete_countries")
     public ResponseEntity<String> deleteAllCountries(@RequestBody(required = false) Map<String, String> password) {

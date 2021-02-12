@@ -150,6 +150,36 @@ public class StateController {
         return ResponseEntity.ok().body(rate);
     }
 
+    @GetMapping("/days_difference")
+    public ResponseEntity<Map<String, Long>> getDaysDifference(@RequestParam Integer diff) {
+        // gets single document by most recent date
+        Optional<StateDoc> mostRecent = this.statesRepo.findTopByOrderByDateDesc();
+        if (mostRecent.isPresent()) {
+            LocalDate prevDate = mostRecent.get().getDate().minusDays(diff);
+            // get entry for {diff} number of days difference
+            Optional<StateDoc> prevEntry = this.statesRepo.findByDate(prevDate);
+            // we want the states array to be the same size so we know they correspond to the same states
+            // at each index
+            if (prevEntry.isPresent() && prevEntry.get().getStates().size() == mostRecent.get().getStates().size()) {
+                Map<String, Long> diffMap = new LinkedHashMap<>();
+                StateDoc curr = mostRecent.get();
+                StateDoc prev = prevEntry.get();
+                // build diffMap
+                for (int i = 0; i < prev.getStates().size(); i++) {
+                    // if the states are the same then we are good
+                    // will need to put in some error handling here in case the states are not the same
+                    if (prev.getStates().get(i).getState().equalsIgnoreCase(curr.getStates().get(i).getState())) {
+                        long difference = curr.getStates().get(i).getActive() - prev.getStates().get(i).getActive();
+                        diffMap.put(prev.getStates().get(i).getState(), difference);
+                    }
+                }
+                return ResponseEntity.ok().body(diffMap);
+            }
+        }
+        // not finding an entry should not happen since it is just looking for the most recent
+        return ResponseEntity.notFound().build();
+    }
+
 
     @DeleteMapping("delete_states")
     public ResponseEntity<String> deleteAllStates(@RequestBody(required = false) Map<String, String> password) {
