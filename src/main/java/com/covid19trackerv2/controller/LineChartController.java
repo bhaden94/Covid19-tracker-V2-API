@@ -18,8 +18,8 @@ public class LineChartController {
     @Autowired
     private CountryRepository countryRepo;
 
-    @GetMapping("/state/bar_chart")
+    @GetMapping("/state/line_chart")
     public ResponseEntity<LineChart[]> getStateLineChart(@RequestParam(required = false) String name) {
-
+        return new LineChart();
     }
 }
