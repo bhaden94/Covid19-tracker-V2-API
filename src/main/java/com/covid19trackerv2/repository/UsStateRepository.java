@@ -2,7 +2,7 @@ package com.covid19trackerv2.repository;
 
 import com.covid19trackerv2.model.charts.LineChart;
 import com.covid19trackerv2.model.state.StateDoc;
-import com.fasterxml.jackson.databind.util.JSONPObject;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -18,28 +18,22 @@ public interface UsStateRepository extends MongoRepository<StateDoc, String> {
 
     Optional<StateDoc> findTopByOrderByDateDesc();
 
-    @Aggregation(pipeline = {"{\n" +
-            "    '$project': {\n" +
-            "      '_id': '$_id', \n" +
-            "      'date': '$date', \n" +
-            "      'confirmed': {\n" +
-            "        '$sum': '$states.confirmed'\n" +
-            "      }, \n" +
-            "      'deaths': {\n" +
-            "        '$sum': '$states.deaths'\n" +
-            "      }, \n" +
-            "      'recovered': {\n" +
-            "        '$sum': '$states.recovered'\n" +
-            "      }, \n" +
-            "      'active': {\n" +
-            "        '$sum': '$states.active'\n" +
-            "      }\n" +
-            "    }\n" +
-            "  }, {\n" +
-            "    '$sort': {\n" +
-            "      'date': 1\n" +
-            "    }\n" +
-            "  }"
+    @Aggregation(pipeline = {"{'$project': {'_id': '$_id', 'date': '$date', \n" +
+            "      'confirmed': {'$sum': '$states.confirmed'}, \n" +
+            "      'deaths': {'$sum': '$states.deaths'}, \n" +
+            "      'recovered': {'$sum': '$states.recovered'}, \n" +
+            "      'active': {'$sum': '$states.active'}}}}"
     })
-    AggregationResults<LineChart> aggregateAllStates();
+    AggregationResults<LineChart> aggregateAllStates(Sort sort);
+
+    @Aggregation(pipeline = {"{'$unwind':{path:'$states'}},\n" +
+            "  {'$match': {'states.state': 'alabama'}},\n" +
+            "  {'$project':{_id:'$_id', date: '$date',\n" +
+            "    confirmed: {'$sum': 'confirmed'},\n" +
+            "    active: {'$sum': 'active'},\n" +
+            "    deaths: {'$sum': 'deaths'},\n" +
+            "    recovered: {'$sum': 'recovered'}\n" +
+            "  }}"
+    })
+    AggregationResults<LineChart> aggregateOneState(String name, Sort sort);
 }
