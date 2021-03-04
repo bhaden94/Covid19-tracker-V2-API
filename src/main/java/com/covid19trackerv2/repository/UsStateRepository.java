@@ -19,11 +19,13 @@ public interface UsStateRepository extends MongoRepository<StateDoc, String> {
     Optional<StateDoc> findTopByOrderByDateDesc();
 
     // performs sum of all fields in sub-document states
-    @Aggregation(pipeline = {"{'$project': {'_id': '$_id', 'date': '$date', \n" +
+    @Aggregation(pipeline = {"" +
+            "{'$project': {'_id': '$_id', 'date': '$date', \n" +
             "      'confirmed': {'$sum': '$states.confirmed'}, \n" +
             "      'deaths': {'$sum': '$states.deaths'}, \n" +
             "      'recovered': {'$sum': '$states.recovered'}, \n" +
-            "      'active': {'$sum': '$states.active'}}}}"
+            "      'active': {'$sum': '$states.active'}}}" +
+            "}"
     })
     AggregationResults<LineChart> aggregateAllStates(Sort sort);
 

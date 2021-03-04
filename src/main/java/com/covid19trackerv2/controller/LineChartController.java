@@ -30,4 +30,13 @@ public class LineChartController {
 
         return ResponseEntity.ok().body(chart.getMappedResults());
     }
+
+    @GetMapping("/country/line_chart")
+    public ResponseEntity<List<LineChart>> getCountryLineChart(@RequestParam(required = false) String name) {
+        AggregationResults<LineChart> chart =
+                name == null ? countryRepo.aggregateAllCountries(Sort.by(Sort.Direction.ASC, "date"))
+                        : countryRepo.aggregateOneCountry(name, Sort.by(Sort.Direction.ASC, "date"));
+
+        return ResponseEntity.ok().body(chart.getMappedResults());
+    }
 }
