@@ -26,7 +26,7 @@ public class LineChartController {
     public ResponseEntity<List<LineChart>> getStateLineChart(@RequestParam(required = false) String name) {
         AggregationResults<LineChart> chart =
                 name == null ? statesRepo.aggregateAllStates(Sort.by(Sort.Direction.ASC, "date"))
-                        : statesRepo.aggregateOneState(name, Sort.by(Sort.Direction.ASC, "date"));
+                        : statesRepo.aggregateOneState(name.toLowerCase(), Sort.by(Sort.Direction.ASC, "date"));
 
         return ResponseEntity.ok().body(chart.getMappedResults());
     }
@@ -35,7 +35,7 @@ public class LineChartController {
     public ResponseEntity<List<LineChart>> getCountryLineChart(@RequestParam(required = false) String name) {
         AggregationResults<LineChart> chart =
                 name == null ? countryRepo.aggregateAllCountries(Sort.by(Sort.Direction.ASC, "date"))
-                        : countryRepo.aggregateOneCountry(name, Sort.by(Sort.Direction.ASC, "date"));
+                        : countryRepo.aggregateOneCountry(name.toLowerCase(), Sort.by(Sort.Direction.ASC, "date"));
 
         return ResponseEntity.ok().body(chart.getMappedResults());
     }
