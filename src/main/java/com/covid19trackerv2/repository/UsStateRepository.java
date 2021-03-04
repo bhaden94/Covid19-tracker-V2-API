@@ -18,6 +18,7 @@ public interface UsStateRepository extends MongoRepository<StateDoc, String> {
 
     Optional<StateDoc> findTopByOrderByDateDesc();
 
+    // performs sum of all fields in sub-document states
     @Aggregation(pipeline = {"{'$project': {'_id': '$_id', 'date': '$date', \n" +
             "      'confirmed': {'$sum': '$states.confirmed'}, \n" +
             "      'deaths': {'$sum': '$states.deaths'}, \n" +
@@ -26,14 +27,21 @@ public interface UsStateRepository extends MongoRepository<StateDoc, String> {
     })
     AggregationResults<LineChart> aggregateAllStates(Sort sort);
 
-    @Aggregation(pipeline = {"{'$unwind':{path:'$states'}},\n" +
-            "  {'$match': {'states.state': 'alabama'}},\n" +
-            "  {'$project':{_id:'$_id', date: '$date',\n" +
-            "    confirmed: {'$sum': 'confirmed'},\n" +
-            "    active: {'$sum': 'active'},\n" +
-            "    deaths: {'$sum': 'deaths'},\n" +
-            "    recovered: {'$sum': 'recovered'}\n" +
-            "  }}"
+    // filters sub-document of states to be the state we are searching for
+    // then performs sum of all fields in sub-document states
+    @Aggregation(pipeline = {"" +
+            "{'$project': {'_id': '$_id', 'date': '$date', \n" +
+            "      'states': {'$filter': {\n" +
+            "          'input': '$states', \n" +
+            "          'as': 'item', \n" +
+            "          'cond': {'$eq': ['$$item.state', '?0']}}}}" +
+            "}",
+            "{'$project': {'_id': '$_id', 'date': '$date', \n" +
+            "      'confirmed': {'$sum': '$states.confirmed'}, \n" +
+            "      'deaths': {'$sum': '$states.deaths'}, \n" +
+            "      'recovered': {'$sum': '$states.recovered'}, \n" +
+            "      'active': {'$sum': '$states.active'}}}" +
+            "}"
     })
     AggregationResults<LineChart> aggregateOneState(String name, Sort sort);
 }
