@@ -1,4 +1,4 @@
-package com.covid19trackerv2.model.barChart;
+package com.covid19trackerv2.model.charts;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

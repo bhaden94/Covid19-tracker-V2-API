@@ -1,6 +1,6 @@
 package com.covid19trackerv2.controller;
 
-import com.covid19trackerv2.model.barChart.BarChart;
+import com.covid19trackerv2.model.charts.BarChart;
 import com.covid19trackerv2.model.country.Country;
 import com.covid19trackerv2.model.country.CountryDoc;
 import com.covid19trackerv2.model.state.StateDoc;
