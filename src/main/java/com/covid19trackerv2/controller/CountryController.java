@@ -168,7 +168,7 @@ public class CountryController {
                     // if the states are the same then we are good
                     // will need to put in some error handling here in case the states are not the same
                     if (prev.getCountries().get(i).getCountry().equalsIgnoreCase(curr.getCountries().get(i).getCountry())) {
-                        long difference = curr.getCountries().get(i).getActive() - prev.getCountries().get(i).getActive();
+                        long difference = curr.getCountries().get(i).getConfirmed() - prev.getCountries().get(i).getConfirmed();
                         diffMap.put(prev.getCountries().get(i).getCountry(), difference);
                     }
                 }

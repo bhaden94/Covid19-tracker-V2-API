@@ -169,7 +169,7 @@ public class StateController {
                     // if the states are the same then we are good
                     // will need to put in some error handling here in case the states are not the same
                     if (prev.getStates().get(i).getState().equalsIgnoreCase(curr.getStates().get(i).getState())) {
-                        long difference = curr.getStates().get(i).getActive() - prev.getStates().get(i).getActive();
+                        long difference = curr.getStates().get(i).getConfirmed() - prev.getStates().get(i).getConfirmed();
                         diffMap.put(prev.getStates().get(i).getState(), difference);
                     }
                 }
