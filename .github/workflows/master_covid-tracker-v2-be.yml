@@ -34,7 +34,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: java-app
-          path: '${{ github.workspace }}/build/libs/*.jar'
+          path: '${{ github.workspace }}/build/libs/covid-19-trackerv2-0.0.1-SNAPSHOT.jar'
 
   deploy:
     runs-on: ubuntu-latest
@@ -56,4 +56,4 @@ jobs:
           app-name: 'covid-tracker-v2-be'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_2BFDA36438384047BAE94CD6A61EACD5 }}
-          package: '*.jar'
+          package: 'covid-19-trackerv2-0.0.1-SNAPSHOT.jar'
