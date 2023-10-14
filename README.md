@@ -9,14 +9,13 @@
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
 <!-- [![Contributors][contributors-shield]][contributors-url] -->
-<!-- ![code-quality-shield]
-![code-grade] -->
+![code-quality-shield]
+![code-grade]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
-
 
 
 <!-- PROJECT LOGO -->
@@ -159,5 +158,5 @@ Brady Haden - [LinkedIn](https://www.linkedin.com/in/brady-s-haden/)
 [linkedin-url]: https://www.linkedin.com/in/brady-s-haden/
 [product-screenshot]: images/screenshot.png
 
-[code-quality-shield]: https://www.code-inspector.com/project/16564/score/svg
-[code-grade]: https://www.code-inspector.com/project/16564/status/svg
+[code-quality-shield]: https://api.codiga.io/project/16564/score/svg
+[code-grade]: https://api.codiga.io/project/16564/status/svg
